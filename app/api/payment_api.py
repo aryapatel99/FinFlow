@@ -1,6 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.payment_schema import PaymentCreate
+from app.schemas.payment_schema import (
+    PaymentCreate,
+    PaymentResponse,
+    MessageResponse,
+)
 from app.services.payment_service import PaymentService
 
 router = APIRouter()
@@ -8,7 +12,7 @@ router = APIRouter()
 payment_service = PaymentService()
 
 
-@router.post("/payments")
+@router.post("/payments", response_model=PaymentResponse)
 def create_payment(payment: PaymentCreate):
     try:
         return payment_service.create_payment(payment)
@@ -16,26 +20,17 @@ def create_payment(payment: PaymentCreate):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/payments")
+@router.get("/payments", response_model=list[PaymentResponse])
 def get_all_payments():
     return payment_service.get_all_payments()
 
 
-@router.get("/payments/{payment_id}")
+@router.get("/payments/{payment_id}", response_model=PaymentResponse)
 def get_payment(payment_id: str):
-    payment = payment_service.get_payment(payment_id)
+    return payment_service.get_payment(payment_id)
 
-    if payment is None:
-        raise HTTPException(status_code=404, detail="Payment not found")
-
-    return payment
-
-
-@router.delete("/payments/{payment_id}")
+@router.delete("/payments/{payment_id}", response_model=MessageResponse)
 def delete_payment(payment_id: str):
-    payment = payment_service.delete_payment(payment_id)
-
-    if payment is None:
-        raise HTTPException(status_code=404, detail="Payment not found")
+    payment_service.delete_payment(payment_id)
 
     return {"message": "Payment deleted successfully"}

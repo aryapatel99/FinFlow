@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 
 from app.api.payment_api import router as payment_router
+from app.config.settings import settings
+from app.exceptions.exception_handler import register_exception_handlers
 
 app = FastAPI(
-    title="FinFlow API",
-    description="Event-Driven Payment Processing Platform",
-    version="1.0.0"
+    title=settings.app_name,
+    description=settings.app_description,
+    version=settings.app_version,
 )
+
+register_exception_handlers(app)
 
 app.include_router(payment_router)
 
