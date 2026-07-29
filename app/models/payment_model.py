@@ -20,3 +20,20 @@ class Payment:
         self.status = "PENDING"
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        payment = cls(
+            customer_name=data["customer_name"],
+            email=data["email"],
+            amount=float(data["amount"]),
+            currency=data["currency"],
+            description=data["description"],
+        )
+
+        payment.payment_id = data["payment_id"]
+        payment.status = data["status"]
+        payment.created_at = datetime.fromisoformat(data["created_at"])
+        payment.updated_at = datetime.fromisoformat(data["updated_at"])
+
+        return payment
