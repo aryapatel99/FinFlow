@@ -49,3 +49,7 @@ class PaymentResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class QueueResponse(BaseModel):
+    message: str
