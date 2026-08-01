@@ -1,7 +1,7 @@
 import json
 
-from app.config.sqs import get_sqs_client, QUEUE_URL
-from app.schemas.payment_schema import PaymentCreate
+from app.config.sqs import QUEUE_URL, get_sqs_client
+from app.models.payment_model import Payment
 from app.services.payment_service import PaymentService
 
 client = get_sqs_client()
@@ -31,11 +31,19 @@ while True:
             print("\n📩 New Payment Received")
             print(body)
 
-            payment_data = PaymentCreate(**body)
+            payment = Payment(
+                customer_name=body["customer_name"],
+                email=body["email"],
+                amount=body["amount"],
+                currency=body["currency"],
+                description=body["description"],
+                user_id=body["user_id"],
+                user_email=body["user_email"],
+            )
 
-            saved_payment = payment_service.create_payment(payment_data)
+            saved_payment = payment_service.create_payment(payment)
 
-            print(f"✅ Payment saved successfully!")
+            print("✅ Payment saved successfully!")
             print(f"Payment ID: {saved_payment.payment_id}")
 
             client.delete_message(

@@ -37,12 +37,16 @@ class PaymentCreate(BaseModel):
 
 class PaymentResponse(BaseModel):
     payment_id: str
+
     customer_name: str
     email: EmailStr
+
     amount: float
     currency: str
     description: str
+
     status: str
+
     created_at: datetime
     updated_at: datetime
 

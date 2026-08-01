@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth.dependencies import get_current_user
 from app.config.sqs import send_message
 from app.schemas.payment_schema import (
     PaymentCreate,
@@ -15,10 +16,18 @@ payment_service = PaymentService()
 
 
 @router.post("/payments", response_model=QueueResponse)
-def create_payment(payment: PaymentCreate):
+def create_payment(
+    payment: PaymentCreate,
+    current_user=Depends(get_current_user),
+):
     try:
-        # Send payment request to Amazon SQS
-        send_message(payment.model_dump())
+
+        payment_data = payment.model_dump()
+
+        payment_data["user_id"] = current_user["user_id"]
+        payment_data["user_email"] = current_user["email"]
+
+        send_message(payment_data)
 
         return QueueResponse(
             message="Payment request queued successfully."
@@ -27,14 +36,22 @@ def create_payment(payment: PaymentCreate):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to queue payment: {str(e)}"
+            detail=str(e)
         )
 
 
 @router.get("/payments", response_model=list[PaymentResponse])
-def get_all_payments():
+def get_all_payments(
+    current_user=Depends(get_current_user),
+):
     try:
-        return payment_service.get_all_payments()
+
+        if current_user["role"] == "admin":
+            return payment_service.get_all_payments()
+
+        return payment_service.get_user_payments(
+            current_user["user_id"]
+        )
 
     except Exception as e:
         raise HTTPException(
@@ -44,9 +61,27 @@ def get_all_payments():
 
 
 @router.get("/payments/{payment_id}", response_model=PaymentResponse)
-def get_payment(payment_id: str):
+def get_payment(
+    payment_id: str,
+    current_user=Depends(get_current_user),
+):
     try:
-        return payment_service.get_payment(payment_id)
+
+        payment = payment_service.get_payment(payment_id)
+
+        if (
+            current_user["role"] != "admin"
+            and payment.user_id != current_user["user_id"]
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied"
+            )
+
+        return payment
+
+    except HTTPException:
+        raise
 
     except Exception as e:
         raise HTTPException(
@@ -56,13 +91,31 @@ def get_payment(payment_id: str):
 
 
 @router.delete("/payments/{payment_id}", response_model=MessageResponse)
-def delete_payment(payment_id: str):
+def delete_payment(
+    payment_id: str,
+    current_user=Depends(get_current_user),
+):
     try:
+
+        payment = payment_service.get_payment(payment_id)
+
+        if (
+            current_user["role"] != "admin"
+            and payment.user_id != current_user["user_id"]
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied"
+            )
+
         payment_service.delete_payment(payment_id)
 
         return MessageResponse(
             message="Payment deleted successfully"
         )
+
+    except HTTPException:
+        raise
 
     except Exception as e:
         raise HTTPException(

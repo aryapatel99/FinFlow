@@ -11,6 +11,10 @@ class PaymentRepository:
     def save(self, payment: Payment):
         item = {
             "payment_id": payment.payment_id,
+
+            "user_id": payment.user_id,
+            "user_email": payment.user_email,
+
             "customer_name": payment.customer_name,
             "email": payment.email,
             "amount": Decimal(str(payment.amount)),
@@ -31,6 +35,15 @@ class PaymentRepository:
         return [
             Payment.from_dict(item)
             for item in response.get("Items", [])
+        ]
+
+    def get_by_user_id(self, user_id: str):
+        response = self.table.scan()
+
+        return [
+            Payment.from_dict(item)
+            for item in response.get("Items", [])
+            if item.get("user_id") == user_id
         ]
 
     def get_by_id(self, payment_id: str):
