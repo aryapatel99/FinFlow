@@ -10,8 +10,8 @@ class Payment:
         amount: float,
         currency: str,
         description: str,
-        user_id: str,
-        user_email: str,
+        user_id: str = "",
+        user_email: str = "",
     ):
         self.payment_id = str(uuid4())
 
@@ -52,8 +52,10 @@ class Payment:
             amount=float(data["amount"]),
             currency=data["currency"],
             description=data["description"],
-            user_id=data["user_id"],
-            user_email=data["user_email"],
+
+            # Backward compatibility
+            user_id=data.get("user_id", ""),
+            user_email=data.get("user_email", ""),
         )
 
         payment.payment_id = data["payment_id"]
