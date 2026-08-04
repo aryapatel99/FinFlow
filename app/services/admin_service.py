@@ -9,6 +9,15 @@ class AdminService:
         self.repository = AdminRepository()
 
     # ==========================
+    # Dashboard
+    # ==========================
+
+    def get_dashboard_statistics(self):
+        logger.info("Admin requested dashboard statistics")
+
+        return self.repository.get_dashboard_statistics()
+
+    # ==========================
     # User Management
     # ==========================
 

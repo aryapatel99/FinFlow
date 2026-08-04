@@ -8,6 +8,60 @@ class AdminRepository:
         self.payment_repository = PaymentRepository()
 
     # ==========================
+    # Dashboard
+    # ==========================
+
+    def get_dashboard_statistics(self):
+        users = self.user_repository.get_all()
+        payments = self.payment_repository.get_all()
+
+        total_users = len(users)
+
+        total_admins = sum(
+            1 for user in users
+            if user.role == "admin"
+        )
+
+        total_customers = sum(
+            1 for user in users
+            if user.role == "customer"
+        )
+
+        total_payments = len(payments)
+
+        pending_payments = sum(
+            1 for payment in payments
+            if payment.status == "PENDING"
+        )
+
+        completed_payments = sum(
+            1 for payment in payments
+            if payment.status == "COMPLETED"
+        )
+
+        failed_payments = sum(
+            1 for payment in payments
+            if payment.status == "FAILED"
+        )
+
+        total_revenue = sum(
+            float(payment.amount)
+            for payment in payments
+            if payment.status == "COMPLETED"
+        )
+
+        return {
+            "total_users": total_users,
+            "total_admins": total_admins,
+            "total_customers": total_customers,
+            "total_payments": total_payments,
+            "pending_payments": pending_payments,
+            "completed_payments": completed_payments,
+            "failed_payments": failed_payments,
+            "total_revenue": total_revenue,
+        }
+
+    # ==========================
     # User Operations
     # ==========================
 

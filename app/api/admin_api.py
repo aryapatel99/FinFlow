@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.auth.dependencies import require_admin
+from app.schemas.dashboard_schema import DashboardResponse
 from app.schemas.payment_schema import PaymentResponse, MessageResponse
 from app.schemas.user_schema import UserResponse
 from app.services.admin_service import AdminService
@@ -11,6 +12,20 @@ router = APIRouter(
 )
 
 admin_service = AdminService()
+
+
+# ==========================
+# Dashboard
+# ==========================
+
+@router.get(
+    "/dashboard",
+    response_model=DashboardResponse
+)
+def get_dashboard(
+    current_admin=Depends(require_admin),
+):
+    return admin_service.get_dashboard_statistics()
 
 
 # ==========================
