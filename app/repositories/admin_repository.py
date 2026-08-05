@@ -34,6 +34,11 @@ class AdminRepository:
             if payment.status == "PENDING"
         )
 
+        processing_payments = sum(
+            1 for payment in payments
+            if payment.status == "PROCESSING"
+        )
+
         completed_payments = sum(
             1 for payment in payments
             if payment.status == "COMPLETED"
@@ -56,13 +61,14 @@ class AdminRepository:
             "total_customers": total_customers,
             "total_payments": total_payments,
             "pending_payments": pending_payments,
+            "processing_payments": processing_payments,
             "completed_payments": completed_payments,
             "failed_payments": failed_payments,
             "total_revenue": total_revenue,
         }
 
     # ==========================
-    # User Operations
+    # User Management
     # ==========================
 
     def get_all_users(self):
@@ -71,41 +77,31 @@ class AdminRepository:
     def get_user(self, email: str):
         return self.user_repository.get_by_email(email)
 
-    def update_user_role(
-        self,
-        email: str,
-        role: str
-    ):
-        return self.user_repository.update_role(
-            email,
-            role
-        )
+    def update_user_role(self, email: str, role: str):
+        return self.user_repository.update_role(email, role)
 
-    def delete_user(
-        self,
-        email: str
-    ):
+    def delete_user(self, email: str):
         return self.user_repository.delete(email)
 
     # ==========================
-    # Payment Operations
+    # Payment Management
     # ==========================
 
     def get_all_payments(self):
         return self.payment_repository.get_all()
 
-    def get_payment(
+    def get_payment(self, payment_id: str):
+        return self.payment_repository.get_by_id(payment_id)
+
+    def update_payment_status(
         self,
-        payment_id: str
+        payment_id: str,
+        status: str,
     ):
-        return self.payment_repository.get_by_id(
-            payment_id
+        return self.payment_repository.update_status(
+            payment_id,
+            status,
         )
 
-    def delete_payment(
-        self,
-        payment_id: str
-    ):
-        return self.payment_repository.delete(
-            payment_id
-        )
+    def delete_payment(self, payment_id: str):
+        return self.payment_repository.delete(payment_id)

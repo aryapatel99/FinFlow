@@ -1,0 +1,17 @@
+import razorpay
+
+from app.config.secrets import (
+    RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRET,
+)
+
+client = razorpay.Client(
+    auth=(
+        RAZORPAY_KEY_ID,
+        RAZORPAY_KEY_SECRET,
+    )
+)
+
+
+def get_razorpay_client():
+    return client

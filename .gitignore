@@ -64,3 +64,5 @@ dist/
 # AWS Credentials (Never Commit)
 # ===========================
 .aws/
+
+app/config/secrets.py

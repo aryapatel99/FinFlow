@@ -1,124 +1,111 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.auth.dependencies import get_current_user
-from app.config.sqs import send_message
 from app.schemas.payment_schema import (
+    MessageResponse,
     PaymentCreate,
     PaymentResponse,
-    MessageResponse,
-    QueueResponse,
 )
+from app.schemas.razorpay_schema import RazorpayOrderResponse
 from app.services.payment_service import PaymentService
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/payments",
+    tags=["Payments"],
+)
 
 payment_service = PaymentService()
 
 
-@router.post("/payments", response_model=QueueResponse)
+# ==========================
+# Create Payment
+# ==========================
+
+@router.post(
+    "",
+    response_model=PaymentResponse,
+)
 def create_payment(
-    payment: PaymentCreate,
+    payment_data: PaymentCreate,
     current_user=Depends(get_current_user),
 ):
-    try:
+    payment_data.user_id = current_user["user_id"]
+    payment_data.user_email = current_user["email"]
 
-        payment_data = payment.model_dump()
-
-        payment_data["user_id"] = current_user["user_id"]
-        payment_data["user_email"] = current_user["email"]
-
-        send_message(payment_data)
-
-        return QueueResponse(
-            message="Payment request queued successfully."
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+    return payment_service.create_payment(
+        payment_data
+    )
 
 
-@router.get("/payments", response_model=list[PaymentResponse])
-def get_all_payments(
+# ==========================
+# Create Razorpay Checkout
+# ==========================
+
+@router.post(
+    "/{payment_id}/checkout",
+    response_model=RazorpayOrderResponse,
+)
+def create_checkout(
+    payment_id: str,
     current_user=Depends(get_current_user),
 ):
-    try:
-
-        if current_user["role"] == "admin":
-            return payment_service.get_all_payments()
-
-        return payment_service.get_user_payments(
-            current_user["user_id"]
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+    return payment_service.create_checkout(
+        payment_id,
+        current_user["user_id"],
+    )
 
 
-@router.get("/payments/{payment_id}", response_model=PaymentResponse)
+# ==========================
+# Get My Payments
+# ==========================
+
+@router.get(
+    "",
+    response_model=list[PaymentResponse],
+)
+def get_my_payments(
+    current_user=Depends(get_current_user),
+):
+    return payment_service.get_payments_by_user(
+        current_user["user_id"]
+    )
+
+
+# ==========================
+# Get Payment By ID
+# ==========================
+
+@router.get(
+    "/{payment_id}",
+    response_model=PaymentResponse,
+)
 def get_payment(
     payment_id: str,
     current_user=Depends(get_current_user),
 ):
-    try:
-
-        payment = payment_service.get_payment(payment_id)
-
-        if (
-            current_user["role"] != "admin"
-            and payment.user_id != current_user["user_id"]
-        ):
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied"
-            )
-
-        return payment
-
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
+    return payment_service.get_payment(
+        payment_id,
+        current_user["user_id"],
+    )
 
 
-@router.delete("/payments/{payment_id}", response_model=MessageResponse)
+# ==========================
+# Delete Payment
+# ==========================
+
+@router.delete(
+    "/{payment_id}",
+    response_model=MessageResponse,
+)
 def delete_payment(
     payment_id: str,
     current_user=Depends(get_current_user),
 ):
-    try:
+    payment_service.delete_payment(
+        payment_id,
+        current_user["user_id"],
+    )
 
-        payment = payment_service.get_payment(payment_id)
-
-        if (
-            current_user["role"] != "admin"
-            and payment.user_id != current_user["user_id"]
-        ):
-            raise HTTPException(
-                status_code=403,
-                detail="Access denied"
-            )
-
-        payment_service.delete_payment(payment_id)
-
-        return MessageResponse(
-            message="Payment deleted successfully"
-        )
-
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
+    return MessageResponse(
+        message="Payment deleted successfully."
+    )

@@ -26,7 +26,17 @@ class Payment:
 
         self.status = "PENDING"
 
+        # Razorpay Details
+        self.razorpay_order_id = None
+        self.razorpay_payment_id = None
+        self.razorpay_signature = None
+
         self.created_at = datetime.now(timezone.utc)
+
+        self.processing_started_at = None
+        self.completed_at = None
+        self.failed_at = None
+
         self.updated_at = datetime.now(timezone.utc)
 
     def to_dict(self):
@@ -40,7 +50,28 @@ class Payment:
             "currency": self.currency,
             "description": self.description,
             "status": self.status,
+
+            "razorpay_order_id": self.razorpay_order_id,
+            "razorpay_payment_id": self.razorpay_payment_id,
+            "razorpay_signature": self.razorpay_signature,
+
             "created_at": self.created_at.isoformat(),
+
+            "processing_started_at":
+                self.processing_started_at.isoformat()
+                if self.processing_started_at
+                else None,
+
+            "completed_at":
+                self.completed_at.isoformat()
+                if self.completed_at
+                else None,
+
+            "failed_at":
+                self.failed_at.isoformat()
+                if self.failed_at
+                else None,
+
             "updated_at": self.updated_at.isoformat(),
         }
 
@@ -52,15 +83,53 @@ class Payment:
             amount=float(data["amount"]),
             currency=data["currency"],
             description=data["description"],
-
-            # Backward compatibility
             user_id=data.get("user_id", ""),
             user_email=data.get("user_email", ""),
         )
 
         payment.payment_id = data["payment_id"]
+
         payment.status = data["status"]
-        payment.created_at = datetime.fromisoformat(data["created_at"])
-        payment.updated_at = datetime.fromisoformat(data["updated_at"])
+
+        payment.razorpay_order_id = data.get(
+            "razorpay_order_id"
+        )
+
+        payment.razorpay_payment_id = data.get(
+            "razorpay_payment_id"
+        )
+
+        payment.razorpay_signature = data.get(
+            "razorpay_signature"
+        )
+
+        payment.created_at = datetime.fromisoformat(
+            data["created_at"]
+        )
+
+        payment.updated_at = datetime.fromisoformat(
+            data["updated_at"]
+        )
+
+        if data.get("processing_started_at"):
+            payment.processing_started_at = (
+                datetime.fromisoformat(
+                    data["processing_started_at"]
+                )
+            )
+
+        if data.get("completed_at"):
+            payment.completed_at = (
+                datetime.fromisoformat(
+                    data["completed_at"]
+                )
+            )
+
+        if data.get("failed_at"):
+            payment.failed_at = (
+                datetime.fromisoformat(
+                    data["failed_at"]
+                )
+            )
 
         return payment

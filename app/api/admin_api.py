@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from app.auth.dependencies import require_admin
 from app.schemas.dashboard_schema import DashboardResponse
 from app.schemas.payment_schema import PaymentResponse, MessageResponse
+from app.schemas.payment_status_schema import PaymentStatusUpdate
 from app.schemas.user_schema import UserResponse
 from app.services.admin_service import AdminService
 
@@ -106,6 +107,21 @@ def get_payment(
     current_admin=Depends(require_admin),
 ):
     return admin_service.get_payment(payment_id)
+
+
+@router.patch(
+    "/payments/{payment_id}/status",
+    response_model=PaymentResponse
+)
+def update_payment_status(
+    payment_id: str,
+    payment_status: PaymentStatusUpdate,
+    current_admin=Depends(require_admin),
+):
+    return admin_service.update_payment_status(
+        payment_id,
+        payment_status.status,
+    )
 
 
 @router.delete(

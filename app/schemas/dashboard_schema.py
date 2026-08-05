@@ -11,6 +11,8 @@ class DashboardResponse(BaseModel):
     total_payments: int
 
     pending_payments: int
+    
+    processing_payments: int
 
     completed_payments: int
 
