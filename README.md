@@ -1,123 +1,139 @@
 # 💳 FinFlow
 
 <p align="center">
-  <h3 align="center">Production-Ready Payment Management API built with FastAPI & AWS</h3>
 
-  <p align="center">
-    A scalable, secure, and production-ready backend payment management system designed using modern backend engineering principles and cloud-native architecture.
-    <br />
-    <br />
-    <a href="#features">Features</a>
-    ·
-    <a href="#project-architecture">Architecture</a>
-    ·
-    <a href="#installation">Installation</a>
-    ·
-    <a href="#roadmap">Roadmap</a>
-  </p>
+<img src="https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python"/>
+
+<img src="https://img.shields.io/badge/FastAPI-Production-green?style=for-the-badge&logo=fastapi"/>
+
+<img src="https://img.shields.io/badge/AWS-DynamoDB-orange?style=for-the-badge&logo=amazonaws"/>
+
+<img src="https://img.shields.io/badge/Razorpay-Integrated-blue?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/JWT-Secured-success?style=for-the-badge"/>
+
+<img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge"/>
+
 </p>
 
----
+<h3 align="center">
+Production-Ready Payment Management Backend built with FastAPI, AWS DynamoDB & Razorpay
+</h3>
 
-## 🚀 Project Status
+<p align="center">
 
-![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Production-green?style=for-the-badge&logo=fastapi)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-Passing-success?style=for-the-badge)
-![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet?style=for-the-badge)
-![Status](https://img.shields.io/badge/Project-Active-success?style=for-the-badge)
+A scalable, secure and cloud-ready backend application demonstrating modern backend engineering practices including authentication, payment processing, webhook integration and AWS cloud services.
+
+</p>
 
 ---
 
 # 📖 Overview
 
-FinFlow is a production-ready RESTful Payment Management API built using **FastAPI** following modern backend software engineering practices.
+FinFlow is a production-ready backend payment management system developed using **FastAPI** following enterprise backend architecture.
 
-The project was designed to simulate how real-world backend services are developed inside technology companies by emphasizing:
+The project simulates how payment systems are built in real software companies by implementing secure authentication, payment workflows, cloud database integration and third-party payment gateway communication.
 
-- Layered Architecture
-- Clean Code
-- Validation
-- Logging
-- Exception Handling
-- Automated Testing
-- AWS Cloud Integration (Roadmap)
-
-Unlike basic CRUD tutorials, FinFlow is being developed incrementally into a cloud-native backend application suitable for learning enterprise backend development and AWS services.
-
-The long-term objective is to evolve FinFlow into a scalable cloud backend deployed entirely on AWS using modern DevOps practices.
+Unlike a basic CRUD application, FinFlow focuses on production-level backend development using layered architecture, clean code principles and cloud-native design.
 
 ---
 
 # ✨ Features
 
-## ✅ Currently Implemented
+## 🔐 Authentication & Authorization
 
-### Payment Management
+- User Registration
+- Secure Login
+- JWT Authentication
+- Password Hashing
+- Protected Routes
+- Role-Based Authorization
+- User-specific Resource Access
+
+---
+
+## 💳 Payment Management
 
 - Create Payment
-- Retrieve All Payments
+- Retrieve User Payments
 - Retrieve Payment by ID
 - Delete Payment
+- Payment Status Management
+- Payment Ownership Validation
 
 ---
 
-### Backend Architecture
+## 💰 Razorpay Integration
+
+- Razorpay Order Creation
+- Secure Checkout
+- Payment Verification
+- Razorpay Signature Validation
+- Webhook Integration
+- Automatic Payment Status Updates
+
+---
+
+## ☁ AWS Integration
+
+- Amazon DynamoDB
+- Cloud-ready Configuration
+- Repository Pattern
+- Production Database Design
+
+---
+
+## 🛡 Production Features
 
 - Layered Architecture
-- Service Layer
-- Repository Layer
-- API Layer
-- Pydantic Schemas
-- Configuration Management
-
----
-
-### Production Features
-
+- Dependency Injection
 - Request Validation
 - Response Models
-- Global Exception Handling
 - Structured Logging
-- Automated API Testing
-- Centralized Configuration
+- Global Exception Handling
+- Configuration Management
+- Modular Design
+- OpenAPI Documentation
 
 ---
 
-### Developer Experience
+# 🏗 Architecture
 
-- Swagger Documentation
-- OpenAPI Specification
-- FastAPI Dependency Injection
-- Modular Project Structure
-- Open Source (MIT License)
+```text
+                    Client
+                       │
+                       ▼
+               FastAPI Router
+                       │
+          JWT Authentication
+                       │
+                       ▼
+              Business Services
+        ┌──────────┴──────────┐
+        │                     │
+        ▼                     ▼
+ Razorpay Service      Payment Service
+        │                     │
+        ▼                     ▼
+ Razorpay APIs      Repository Layer
+                              │
+                              ▼
+                    Amazon DynamoDB
+```
 
 ---
 
-# 🏗 Project Architecture
+# 🔐 Security Features
 
-```
-                 Client
-                    │
-                    ▼
-             FastAPI Router
-                    │
-                    ▼
-         Request Validation
-             (Pydantic)
-                    │
-                    ▼
-          Business Logic Layer
-          (Payment Service)
-                    │
-                    ▼
-          Repository Layer
-                    │
-                    ▼
-           Data Storage Layer
-      (In-Memory → DynamoDB)
-```
+- JWT Authentication
+- Password Hashing
+- Protected APIs
+- Role-Based Access Control
+- Payment Ownership Validation
+- Request Validation
+- Razorpay Signature Verification
+- Webhook Verification
+- Centralized Exception Handling
 
 ---
 
@@ -131,18 +147,32 @@ The long-term objective is to evolve FinFlow into a scalable cloud backend deplo
 
 ---
 
+## Database
+
+- Amazon DynamoDB
+- boto3
+
+---
+
+## Payment Gateway
+
+- Razorpay SDK
+- Razorpay Webhooks
+
+---
+
+## Authentication
+
+- JWT
+- python-jose
+- Passlib (bcrypt)
+
+---
+
 ## Validation
 
 - Pydantic
 - Email Validator
-
----
-
-## Testing
-
-- Pytest
-- HTTPX
-- FastAPI TestClient
 
 ---
 
@@ -154,14 +184,11 @@ The long-term objective is to evolve FinFlow into a scalable cloud backend deplo
 
 ---
 
-## Future Cloud Stack
+## Testing
 
-- Amazon DynamoDB
-- AWS Lambda
-- API Gateway
-- CloudWatch
-- GitHub Actions
-- JWT Authentication
+- Pytest
+- HTTPX
+- FastAPI TestClient
 
 ---
 
@@ -169,99 +196,106 @@ The long-term objective is to evolve FinFlow into a scalable cloud backend deplo
 
 ```text
 FinFlow/
-│
+
 ├── app/
-│   ├── api/
-│   │   └── payment_api.py
-│   │
-│   ├── config/
-│   │   └── settings.py
-│   │
-│   ├── exceptions/
-│   │   ├── exception_handler.py
-│   │   └── payment_exception.py
-│   │
-│   ├── models/
-│   │   └── payment_model.py
-│   │
-│   ├── repositories/
-│   │   └── payment_repository.py
-│   │
-│   ├── schemas/
-│   │   └── payment_schema.py
-│   │
-│   ├── services/
-│   │   └── payment_service.py
-│   │
-│   ├── utils/
-│   │   └── logger.py
-│   │
-│   └── main.py
+│
+├── api/
+│   ├── auth_api.py
+│   ├── payment_api.py
+│   ├── payment_verify_api.py
+│   ├── checkout_api.py
+│   ├── webhook_api.py
+│   └── admin_api.py
+│
+├── auth/
+│   ├── auth_handler.py
+│   ├── dependencies.py
+│   └── password.py
+│
+├── config/
+│   └── settings.py
+│
+├── exceptions/
+│
+├── middleware/
+│
+├── models/
+│
+├── repositories/
+│
+├── schemas/
+│
+├── services/
+│   ├── payment_service.py
+│   ├── razorpay_service.py
+│   └── auth_service.py
+│
+├── templates/
+│   └── checkout.html
+│
+├── utils/
+│
+├── main.py
 │
 ├── tests/
-│   └── test_payment_api.py
 │
 ├── requirements.txt
-├── .gitignore
 ├── LICENSE
 └── README.md
 ```
+
+---
+
 # ⚙ Design Principles
 
-FinFlow follows several backend engineering principles:
+FinFlow follows modern backend engineering principles:
 
-- Clean Architecture
+- Layered Architecture
+- Repository Pattern
+- Service-Oriented Design
 - Separation of Concerns
-- Single Responsibility Principle (SRP)
-- Layered Design Pattern
-- Validation at the API Boundary
-- Centralized Exception Handling
-- Test-Driven Friendly Architecture
+- Single Responsibility Principle
+- Dependency Injection
 - Cloud-Ready Design
-
-These principles make the project easy to maintain, extend, and migrate to cloud infrastructure.
-
----
-
-# 🎯 Project Goals
-
-The goal of FinFlow is to demonstrate practical backend engineering skills expected from modern software engineers.
-
-This project focuses on:
-
-- Building production-quality REST APIs
-- Learning scalable backend architecture
-- Practicing automated testing
-- Implementing clean coding practices
-- Preparing applications for cloud deployment
-- Learning AWS backend services through real implementation
-
-The project will continue evolving throughout multiple development phases until it becomes a complete cloud-native payment backend.
+- Secure Authentication
+- Clean Code Practices
 
 ---
 
-# ⚙️ Installation
+# 🎯 Project Objectives
+
+This project demonstrates practical backend engineering skills including:
+
+- Production REST APIs
+- Secure Authentication
+- Cloud Database Integration
+- Payment Gateway Integration
+- Webhook Processing
+- Scalable Backend Architecture
+- AWS Service Integration
+- Enterprise Code Organization
+
+---
+# ⚙ Installation
 
 ## Prerequisites
 
-Before running FinFlow locally, ensure you have the following installed:
+Before running FinFlow locally, ensure the following are installed:
 
 - Python 3.11+
 - Git
 - pip
+- AWS Account
+- Razorpay Test Account
 - VS Code (Recommended)
 
 ---
 
-## Clone the Repository
+## Clone Repository
 
 ```bash
 git clone https://github.com/aryapatel99/FinFlow.git
-```
 
-Move into the project directory.
-
-```bash
 cd FinFlow
 ```
 
@@ -269,19 +303,15 @@ cd FinFlow
 
 ## Create Virtual Environment
 
-Windows
+### Windows
 
 ```bash
 python -m venv .venv
-```
 
-Activate
-
-```bash
 .venv\Scripts\activate
 ```
 
-Linux / macOS
+### Linux / macOS
 
 ```bash
 python3 -m venv .venv
@@ -299,31 +329,73 @@ pip install -r requirements.txt
 
 ---
 
-# ▶️ Running the Application
+# ⚙ Environment Variables
 
-Start the FastAPI development server.
+Create a `.env` file inside the project root.
+
+```env
+# Application
+
+APP_NAME=FinFlow
+
+APP_VERSION=1.0.0
+
+APP_DESCRIPTION=Production Ready Payment Backend
+
+
+
+# JWT
+
+JWT_SECRET_KEY=your_secret_key
+
+JWT_ALGORITHM=HS256
+
+
+
+# AWS
+
+AWS_ACCESS_KEY_ID=YOUR_KEY
+
+AWS_SECRET_ACCESS_KEY=YOUR_SECRET
+
+AWS_REGION=ap-south-1
+
+DYNAMODB_TABLE=payments
+
+
+
+# Razorpay
+
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxx
+
+RAZORPAY_KEY_SECRET=xxxxxxxxxxxx
+
+RAZORPAY_WEBHOOK_SECRET=xxxxxxxxxxxx
+```
+
+> **Never commit your `.env` file to GitHub.**
+
+---
+
+# ▶ Running the Application
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Server runs at
+Application:
 
 ```
 http://127.0.0.1:8000
 ```
 
----
-
-## Swagger Documentation
-
-Interactive API Documentation
+Swagger Documentation:
 
 ```
 http://127.0.0.1:8000/docs
 ```
 
-ReDoc Documentation
+ReDoc Documentation:
 
 ```
 http://127.0.0.1:8000/redoc
@@ -331,119 +403,222 @@ http://127.0.0.1:8000/redoc
 
 ---
 
-# 🧪 Running Automated Tests
+# 📡 API Endpoints
 
-FinFlow includes automated API tests using **Pytest** and **FastAPI TestClient**.
-
-Run all tests:
-
-```bash
-python -m pytest
-```
-
-Expected Output
-
-```text
-==========================
-6 passed
-==========================
-```
-
-Current test coverage includes:
-
-- Home Endpoint
-- Create Payment
-- Retrieve Payments
-- Retrieve Payment by ID
-- Delete Payment
-- Request Validation
-
----
-
-# 📡 REST API Endpoints
+## Authentication
 
 | Method | Endpoint | Description |
-|----------|-------------------------|-------------------------|
-| GET | `/` | Welcome endpoint |
-| POST | `/payments` | Create payment |
-| GET | `/payments` | Retrieve all payments |
-| GET | `/payments/{payment_id}` | Retrieve payment by ID |
-| DELETE | `/payments/{payment_id}` | Delete payment |
+|---------|----------|-------------|
+| POST | `/auth/register` | Register User |
+| POST | `/auth/login` | User Login |
 
 ---
 
-# 📝 Example Request
+## Payments
 
-```json
-{
-    "customer_name": "Arya Patel",
-    "email": "arya@gmail.com",
-    "amount": 1500,
-    "currency": "INR",
-    "description": "AWS Developer Course"
-}
-```
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/payments` | Create Payment |
+| GET | `/payments` | Get User Payments |
+| GET | `/payments/{payment_id}` | Get Payment |
+| DELETE | `/payments/{payment_id}` | Delete Payment |
 
-Example Response
+---
 
-```json
-{
-    "payment_id": "...",
-    "customer_name": "Arya Patel",
-    "email": "arya@gmail.com",
-    "amount": 1500,
-    "currency": "INR",
-    "description": "AWS Developer Course",
-    "status": "PENDING",
-    "created_at": "...",
-    "updated_at": "..."
-}
+## Razorpay
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/payments/{payment_id}/checkout` | Create Razorpay Order |
+| POST | `/payments/verify` | Verify Payment |
+| POST | `/webhook/razorpay` | Razorpay Webhook |
+
+---
+
+## Checkout
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/checkout/{payment_id}` | Razorpay Checkout |
+
+---
+
+# 💳 Payment Flow
+
+```text
+User
+ │
+ ▼
+Login
+ │
+ ▼
+Create Payment
+ │
+ ▼
+Create Razorpay Order
+ │
+ ▼
+Checkout Page
+ │
+ ▼
+Razorpay Payment
+ │
+ ▼
+Payment Verification
+ │
+ ▼
+Webhook Trigger
+ │
+ ▼
+Update DynamoDB
+ │
+ ▼
+Payment Completed
 ```
 
 ---
 
-# 📈 Development Roadmap
+# ☁ AWS Architecture
 
-## ✅ Phase 1 — Backend Foundation
+```text
+             FastAPI
 
-- [x] FastAPI Project Setup
+                │
+
+                ▼
+
+        Payment Service
+
+                │
+
+                ▼
+
+         DynamoDB Repository
+
+                │
+
+                ▼
+
+         Amazon DynamoDB
+```
+
+---
+
+# 📸 Screenshots
+
+## Swagger UI
+
+> *(Add Screenshot)*
+
+---
+
+## Razorpay Checkout
+
+> *(Add Screenshot)*
+
+---
+
+## Razorpay Dashboard
+
+> *(Add Screenshot)*
+
+---
+
+## DynamoDB Table
+
+> *(Add Screenshot)*
+
+---
+
+## Payment Verification
+
+> *(Add Screenshot)*
+
+---
+
+# 🧪 Testing
+
+Run all tests.
+
+```bash
+pytest
+```
+
+Expected output:
+
+```text
+========================
+
+All tests passed
+
+========================
+```
+
+Current automated testing includes:
+
+- Authentication
+- Payment CRUD
+- Validation
+- Payment Verification
+- Razorpay Integration
+- Repository Tests
+
+---
+
+# 🚀 Roadmap
+
+## ✅ Phase 1
+
+- [x] FastAPI Setup
 - [x] Layered Architecture
-- [x] Payment CRUD API
-- [x] Pydantic Validation
-- [x] Response Models
-- [x] Global Exception Handling
-- [x] Configuration Management
-- [x] Structured Logging
-- [x] Automated API Testing
-- [x] Professional Documentation
-- [x] Open Source (MIT)
+- [x] CRUD APIs
+- [x] Validation
+- [x] Exception Handling
+- [x] Logging
 
 ---
 
-## 🚀 Phase 2 — AWS Cloud Backend
+## ✅ Phase 2
 
-- [ ] Amazon DynamoDB Integration
-- [ ] JWT Authentication
-- [ ] AWS Lambda Deployment
-- [ ] API Gateway
-- [ ] CloudWatch Logging
-- [ ] GitHub Actions CI/CD
-- [ ] Environment-Based Configuration
-- [ ] Production Deployment
+- [x] JWT Authentication
+- [x] Role-Based Authorization
+- [x] AWS DynamoDB
+- [x] Repository Pattern
+- [x] Secure APIs
+
+---
+
+## ✅ Phase 3
+
+- [x] Razorpay Integration
+- [x] Checkout API
+- [x] Payment Verification
+- [x] Webhook Integration
+- [x] Secure Payment Flow
+
+---
+
+## 🚧 Phase 4
+
+- [ ] React Frontend
+- [ ] Dashboard
+- [ ] User Profile
+- [ ] Payment History
+- [ ] Responsive UI
 
 ---
 
 ## 🌟 Future Enhancements
 
-- [ ] Docker Support
-- [ ] Redis Caching
-- [ ] API Versioning
-- [ ] Rate Limiting
-- [ ] Monitoring & Metrics
-- [ ] Terraform Infrastructure
-- [ ] ECS/Fargate Deployment
-- [ ] Payment Gateway Integration (Stripe/Razorpay)
-- [ ] API Analytics Dashboard
+- Docker
+- Redis
+- CI/CD
+- GitHub Actions
+- ECS Deployment
+- API Versioning
+- Monitoring
+- Rate Limiting
+- Analytics Dashboard
 
 ---
 
@@ -451,37 +626,32 @@ Example Response
 
 Contributions are welcome.
 
-If you would like to improve FinFlow:
-
 1. Fork the repository.
 2. Create a feature branch.
 3. Commit your changes.
-4. Push the branch.
+4. Push your branch.
 5. Open a Pull Request.
 
-Bug reports and feature requests are also appreciated.
-
 ---
-
 
 # 📜 License
 
 This project is licensed under the **MIT License**.
 
-You are free to use, modify, distribute, and contribute to this project while retaining the original license.
-
-See the LICENSE file for complete details.
+See the LICENSE file for more information.
 
 ---
 
 # 👨‍💻 Author
 
-**Arya Patel**
+## Arya Patel
 
-Software Engineering & AI/ML Enthusiast
+Backend Developer • Software Engineering Student • AI/ML Enthusiast
 
-- 💼 LinkedIn: www.linkedin.com/in/aryapatel9586
-- 🌐 GitHub: https://github.com/aryapatel99
+### Connect with me
+
+- GitHub: https://github.com/aryapatel99
+- LinkedIn: https://www.linkedin.com/in/aryapatel9586
 
 ---
 
@@ -489,28 +659,31 @@ Software Engineering & AI/ML Enthusiast
 
 If you found this project useful:
 
-- ⭐ Star the repository
-- 🍴 Fork the project
-- 🛠️ Contribute improvements
-- 🐞 Report bugs
-- 💡 Suggest new features
-
-Your support helps improve the project and encourages future development.
+- ⭐ Star this repository
+- 🍴 Fork the repository
+- 🐛 Report issues
+- 💡 Suggest improvements
 
 ---
 
 # 🙏 Acknowledgements
 
-This project was built as part of a continuous journey toward mastering backend engineering, cloud computing, and scalable software architecture.
+Special thanks to:
 
-Special thanks to the FastAPI, Python, and open-source communities for providing the tools and inspiration that made this project possible.
+- FastAPI
+- AWS
+- Razorpay
+- Python Community
+- Open Source Community
+
+for providing amazing tools and documentation.
 
 ---
 
 <p align="center">
 
-**Built with ❤️ using Python, FastAPI, and AWS**
+## Built with ❤️ using Python, FastAPI, AWS DynamoDB & Razorpay
 
-**FinFlow — From Local API to Production-Ready Cloud Backend**
+### FinFlow — Production-Ready Payment Management Backend
 
 </p>

@@ -15,7 +15,6 @@ class PaymentService:
         self.repository = PaymentRepository()
         self.razorpay_service = RazorpayService()
 
-
     # ==========================
     # Create Payment
     # ==========================
@@ -47,8 +46,6 @@ class PaymentService:
 
         return payment
 
-
-
     # ==========================
     # Razorpay Checkout
     # ==========================
@@ -56,7 +53,7 @@ class PaymentService:
     def create_checkout(
         self,
         payment_id: str,
-        user_id: str,
+        current_user: dict,
     ):
 
         payment = self.repository.get_by_id(
@@ -68,14 +65,18 @@ class PaymentService:
                 payment_id
             )
 
+        # Customer can access only their own payment.
+        # Admin can access any payment.
 
-        if payment.user_id != user_id:
+        if (
+            current_user["role"] != "admin"
+            and payment.user_id != current_user["user_id"]
+        ):
 
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You are not authorized to access this payment."
             )
-
 
         if payment.razorpay_order_id:
 
@@ -92,7 +93,6 @@ class PaymentService:
                 currency=payment.currency,
             )
 
-
         order = self.razorpay_service.create_order(
 
             amount=payment.amount,
@@ -101,14 +101,11 @@ class PaymentService:
 
         )
 
-
         payment.razorpay_order_id = order["id"]
-
 
         self.repository.update_razorpay_details(
             payment
         )
-
 
         return RazorpayOrderResponse(
 
@@ -123,8 +120,6 @@ class PaymentService:
             currency=payment.currency,
         )
 
-
-
     # ==========================
     # Verify Razorpay Payment
     # ==========================
@@ -138,7 +133,6 @@ class PaymentService:
             "Verifying Razorpay payment"
         )
 
-
         # Verify signature from Razorpay
 
         self.razorpay_service.verify_payment_signature(
@@ -151,7 +145,6 @@ class PaymentService:
 
         )
 
-
         # Find payment using Razorpay order id
 
         payment = self.repository.get_by_razorpay_order_id(
@@ -159,7 +152,6 @@ class PaymentService:
             data.razorpay_order_id
 
         )
-
 
         if payment is None:
 
@@ -169,14 +161,11 @@ class PaymentService:
 
             )
 
-
         # Avoid duplicate processing
 
         if payment.status == "COMPLETED":
 
             return True
-
-
 
         payment.razorpay_payment_id = (
 
@@ -184,20 +173,17 @@ class PaymentService:
 
         )
 
-
         payment.razorpay_signature = (
 
             data.razorpay_signature
 
         )
 
-
         self.repository.update_razorpay_details(
 
             payment
 
         )
-
 
         # Status update
 
@@ -211,7 +197,6 @@ class PaymentService:
 
             )
 
-
         self.update_payment_status(
 
             payment.payment_id,
@@ -220,18 +205,13 @@ class PaymentService:
 
         )
 
-
         logger.info(
 
             f"Payment completed successfully '{payment.payment_id}'"
 
         )
 
-
         return True
-
-
-
 
     # ==========================
     # Read Payments
@@ -265,7 +245,7 @@ class PaymentService:
     def get_payment(
         self,
         payment_id: str,
-        user_id: str,
+        current_user: dict,
     ):
 
         payment = self.repository.get_by_id(
@@ -273,7 +253,6 @@ class PaymentService:
             payment_id
 
         )
-
 
         if payment is None:
 
@@ -283,8 +262,13 @@ class PaymentService:
 
             )
 
+        # Customer can access only their own payment.
+        # Admin can access any payment.
 
-        if payment.user_id != user_id:
+        if (
+            current_user["role"] != "admin"
+            and payment.user_id != current_user["user_id"]
+        ):
 
             raise HTTPException(
 
@@ -294,9 +278,7 @@ class PaymentService:
 
             )
 
-
         return payment
-
 
 
 
@@ -316,7 +298,6 @@ class PaymentService:
 
         )
 
-
         if payment is None:
 
             raise PaymentNotFoundException(
@@ -324,7 +305,6 @@ class PaymentService:
                 payment_id
 
             )
-
 
         valid_transitions = {
 
@@ -348,7 +328,6 @@ class PaymentService:
 
         }
 
-
         if status not in valid_transitions[
 
             payment.status
@@ -363,7 +342,6 @@ class PaymentService:
 
             )
 
-
         return self.repository.update_status(
 
             payment_id,
@@ -374,7 +352,6 @@ class PaymentService:
 
 
 
-
     # ==========================
     # Delete
     # ==========================
@@ -382,7 +359,7 @@ class PaymentService:
     def delete_payment(
         self,
         payment_id: str,
-        user_id: str,
+        current_user: dict,
     ):
 
         payment = self.repository.get_by_id(
@@ -390,7 +367,6 @@ class PaymentService:
             payment_id
 
         )
-
 
         if payment is None:
 
@@ -400,8 +376,13 @@ class PaymentService:
 
             )
 
+        # Customer can delete only their own payment.
+        # Admin can delete any payment.
 
-        if payment.user_id != user_id:
+        if (
+            current_user["role"] != "admin"
+            and payment.user_id != current_user["user_id"]
+        ):
 
             raise HTTPException(
 
@@ -410,7 +391,6 @@ class PaymentService:
                 detail="You are not authorized to delete this payment."
 
             )
-
 
         return self.repository.delete(
 

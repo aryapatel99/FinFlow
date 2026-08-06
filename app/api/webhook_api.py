@@ -9,97 +9,176 @@ router = APIRouter(
     tags=["Webhook"],
 )
 
+
 payment_service = PaymentService()
+
 razorpay_service = RazorpayService()
+
+
+# =====================================
+# Razorpay Webhook
+# =====================================
+# Receives events directly from Razorpay.
+#
+# Events handled:
+# - payment.captured
+# - payment.failed
+#
+# This works independently from frontend.
+# =====================================
 
 
 @router.post("/razorpay")
 async def razorpay_webhook(
     request: Request,
 ):
+
     payload = await request.json()
 
-    razorpay_order_id = payload.get(
-        "razorpay_order_id"
+    event = payload.get(
+        "event"
     )
 
-    razorpay_payment_id = payload.get(
-        "razorpay_payment_id"
-    )
+    if not event:
 
-    razorpay_signature = payload.get(
-        "razorpay_signature"
-    )
-
-    if not all(
-        [
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-        ]
-    ):
         raise HTTPException(
+
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid Razorpay payload",
+
+            detail="Invalid webhook event"
+
         )
 
     try:
 
-        # Verify payment authenticity
-        razorpay_service.verify_signature(
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-        )
+        # --------------------------------
+        # Payment Successful
+        # --------------------------------
 
-        # Find payment in FinFlow database
-        payment = (
-            payment_service.repository
-            .get_by_razorpay_order_id(
-                razorpay_order_id
-            )
-        )
+        if event == "payment.captured":
 
-        if payment is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Payment not found",
+            payment_entity = (
+                payload
+                .get("payload", {})
+                .get("payment", {})
+                .get("entity", {})
             )
 
-        # Save Razorpay transaction details
-        payment.razorpay_payment_id = (
-            razorpay_payment_id
-        )
-
-        payment.razorpay_signature = (
-            razorpay_signature
-        )
-
-        payment_service.repository.update_razorpay_details(
-            payment
-        )
-
-        # Move payment lifecycle
-        if payment.status == "PENDING":
-
-            payment_service.update_payment_status(
-                payment.payment_id,
-                "PROCESSING",
+            razorpay_order_id = (
+                payment_entity.get(
+                    "order_id"
+                )
             )
 
-        payment_service.update_payment_status(
-            payment.payment_id,
-            "COMPLETED",
-        )
+            razorpay_payment_id = (
+                payment_entity.get(
+                    "id"
+                )
+            )
 
+            if not razorpay_order_id:
+
+                raise Exception(
+                    "Order ID missing"
+                )
+
+            payment = (
+                payment_service.repository
+                .get_by_razorpay_order_id(
+                    razorpay_order_id
+                )
+            )
+
+            if payment is None:
+
+                raise Exception(
+                    "Payment not found"
+                )
+
+            payment.razorpay_payment_id = (
+                razorpay_payment_id
+            )
+
+            payment_service.repository.update_razorpay_details(
+                payment
+            )
+
+            # Move PENDING -> PROCESSING
+
+            if payment.status == "PENDING":
+
+                payment_service.update_payment_status(
+                    payment.payment_id,
+                    "PROCESSING",
+                )
+
+                # IMPORTANT:
+                # Reload payment so the updated status
+                # is reflected in the object.
+                payment = (
+                    payment_service.repository.get_by_id(
+                        payment.payment_id
+                    )
+                )
+
+                        # Move PROCESSING -> COMPLETED
+
+            if payment.status == "PROCESSING":
+
+                payment_service.update_payment_status(
+                    payment.payment_id,
+                    "COMPLETED",
+                )
+
+        # --------------------------------
+        # Payment Failed
+        # --------------------------------
+
+        elif event == "payment.failed":
+
+            payment_entity = (
+                payload
+                .get("payload", {})
+                .get("payment", {})
+                .get("entity", {})
+            )
+
+            razorpay_order_id = (
+                payment_entity.get(
+                    "order_id"
+                )
+            )
+
+            payment = (
+                payment_service.repository
+                .get_by_razorpay_order_id(
+                    razorpay_order_id
+                )
+            )
+
+            if payment:
+
+                payment_service.update_payment_status(
+
+                    payment.payment_id,
+
+                    "FAILED"
+
+                )
 
         return {
-            "message": "Payment verified successfully"
+
+            "message":
+            "Webhook processed successfully"
+
         }
 
     except Exception as e:
 
         raise HTTPException(
+
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+
+            detail=str(e)
+
         )

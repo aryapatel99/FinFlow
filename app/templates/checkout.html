@@ -15,39 +15,25 @@
             margin-top: 80px;
         }
 
-
         button {
-
             padding: 12px 30px;
-
             font-size: 18px;
-
             cursor: pointer;
-
             background: black;
-
             color: white;
-
             border-radius: 8px;
-
             border: none;
-
         }
 
-
         button:hover {
-
             opacity: 0.8;
-
         }
 
     </style>
 
 </head>
 
-
 <body>
-
 
 <h2>FinFlow Checkout</h2>
 
@@ -55,46 +41,25 @@
     Secure Razorpay Payment
 </p>
 
-
 <button id="pay-btn">
     Pay Now
 </button>
 
-
-
 <script>
-
 
 const options = {
 
-
-    // Razorpay Test Key
     key: "{{ razorpay_key_id }}",
 
-
-
-    // Amount in paise
     amount: "{{ amount }}",
-
-
 
     currency: "{{ currency }}",
 
-
-
     name: "FinFlow",
 
+    description: "Payment for FinFlow",
 
-
-    description:
-        "Payment for FinFlow",
-
-
-
-    order_id:
-        "{{ razorpay_order_id }}",
-
-
+    order_id: "{{ razorpay_order_id }}",
 
     method: {
 
@@ -108,106 +73,54 @@ const options = {
 
     },
 
-
-
     handler: function(response){
 
+        fetch("/payments/verify", {
 
-        console.log(
-            "Payment Success:",
-            response
-        );
+            method: "POST",
 
+            headers: {
+                "Content-Type": "application/json"
+            },
 
+            body: JSON.stringify({
 
-        fetch(
-            "/payments/verify",
-            {
-
-                method: "POST",
-
-
-                headers: {
-
-                    "Content-Type":
-                    "application/json"
-
-                },
-
-
-                body: JSON.stringify({
-
-                    razorpay_order_id:
+                razorpay_order_id:
                     response.razorpay_order_id,
 
-
-                    razorpay_payment_id:
+                razorpay_payment_id:
                     response.razorpay_payment_id,
 
-
-                    razorpay_signature:
+                razorpay_signature:
                     response.razorpay_signature
 
-                })
-
-            }
-
-        )
-
-        .then(res => res.json())
-
-
-        .then(data => {
-
-
-            console.log(
-                "Verification Response:",
-                data
-            );
-
-
-            alert(
-                data.message
-            );
-
-
-            window.location.reload();
-
+            })
 
         })
 
+        .then(res => res.json())
 
-        .catch(error => {
+        .then(data => {
 
+            alert(data.message);
 
-            console.error(
-                "Verification Error:",
-                error
-            );
+            window.location.reload();
 
+        })
 
-            alert(
-                "Payment verification failed"
-            );
+        .catch(() => {
 
+            alert("Payment verification failed.");
 
         });
 
-
     },
-
-
 
     modal: {
 
-
         ondismiss: function(){
 
-
-            console.log(
-                "Payment popup closed"
-            );
-
+            alert("Payment cancelled.");
 
         }
 
@@ -215,53 +128,31 @@ const options = {
 
 };
 
-
-
-
 const rzp = new Razorpay(options);
 
-
-
-// Payment failure event
-
 rzp.on(
+
     "payment.failed",
-    function(response){
 
+    function(){
 
-        console.log(
-            "Payment Failed:",
-            response
-        );
-
-
-        alert(
-            "Payment Failed"
-        );
-
+        alert("Payment failed.");
 
     }
+
 );
-
-
-
 
 document
 .getElementById("pay-btn")
 .onclick = function(e){
 
-
     rzp.open();
-
 
     e.preventDefault();
 
-
 };
 
-
 </script>
-
 
 </body>
 

@@ -20,7 +20,6 @@ templates = Jinja2Templates(
 payment_service = PaymentService()
 
 
-
 # =====================================
 # Production Checkout Route
 # =====================================
@@ -41,9 +40,8 @@ def checkout_page(
 
     order = payment_service.create_checkout(
         payment_id,
-        current_user["user_id"],
+        current_user,
     )
-
 
     return templates.TemplateResponse(
         request=request,
@@ -63,8 +61,6 @@ def checkout_page(
                 order.currency,
         }
     )
-
-
 
 
 # =====================================
@@ -95,7 +91,6 @@ def test_checkout_page(
         payment_id
     )
 
-
     if payment is None:
 
         return HTMLResponse(
@@ -103,12 +98,16 @@ def test_checkout_page(
             status_code=404,
         )
 
+    # Simulate the authenticated payment owner.
+    current_user = {
+        "user_id": payment.user_id,
+        "role": "customer",
+    }
 
     order = payment_service.create_checkout(
         payment_id,
-        payment.user_id,
+        current_user,
     )
-
 
     return templates.TemplateResponse(
         request=request,

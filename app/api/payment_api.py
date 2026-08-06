@@ -51,7 +51,7 @@ def create_checkout(
 ):
     return payment_service.create_checkout(
         payment_id,
-        current_user["user_id"],
+        current_user,
     )
 
 
@@ -85,7 +85,7 @@ def get_payment(
 ):
     return payment_service.get_payment(
         payment_id,
-        current_user["user_id"],
+        current_user,
     )
 
 
@@ -103,7 +103,7 @@ def delete_payment(
 ):
     payment_service.delete_payment(
         payment_id,
-        current_user["user_id"],
+        current_user,
     )
 
     return MessageResponse(
