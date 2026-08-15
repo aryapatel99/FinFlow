@@ -66,3 +66,5 @@ dist/
 .aws/
 
 app/config/secrets.py
+# Node.js
+node_modules/
