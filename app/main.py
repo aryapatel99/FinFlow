@@ -1,12 +1,14 @@
 from fastapi import FastAPI
-from app.api.payment_verify_api import router as payment_verify_router
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth_api import router as auth_router
 from app.api.payment_api import router as payment_router
 from app.api.webhook_api import router as webhook_router
+from app.api.payment_verify_api import router as payment_verify_router
+from app.api.checkout_api import router as checkout_router
+
 from app.config.settings import settings
 from app.exceptions.exception_handler import register_exception_handlers
-from app.api.checkout_api import router as checkout_router
 
 
 app = FastAPI(
@@ -15,6 +17,26 @@ app = FastAPI(
     version=settings.app_version,
 )
 
+
+# ==========================
+# CORS Configuration
+# ==========================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ==========================
+# Exception Handlers
+# ==========================
 
 register_exception_handlers(app)
 
@@ -25,16 +47,22 @@ register_exception_handlers(app)
 
 app.include_router(auth_router)
 
-
 app.include_router(payment_router)
 
 app.include_router(webhook_router)
+
 app.include_router(payment_verify_router)
+
 app.include_router(checkout_router)
 
 
+# ==========================
+# Root Endpoint
+# ==========================
+
 @app.get("/")
 def root():
+
     return {
         "message": "Welcome to FinFlow API"
     }
