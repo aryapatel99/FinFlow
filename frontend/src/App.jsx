@@ -10,6 +10,9 @@ import { useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Payments from "./pages/Payments";
+import CreatePayment from "./pages/CreatePayment";
+import PaymentDetails from "./pages/PaymentDetails";
 
 
 // =====================================
@@ -94,9 +97,11 @@ function AdminDashboard() {
                 FinFlow Admin Dashboard
             </h1>
 
+
             <p>
                 Welcome, {user?.email}
             </p>
+
 
             <p>
                 Role: {user?.role}
@@ -118,7 +123,9 @@ function App() {
 
             <Routes>
 
-                {/* Public Routes */}
+                {/* =========================
+                    Public Routes
+                ========================== */}
 
                 <Route
                     path="/login"
@@ -132,7 +139,9 @@ function App() {
                 />
 
 
-                {/* Customer / Authenticated Route */}
+                {/* =========================
+                    Customer Dashboard
+                ========================== */}
 
                 <Route
                     path="/dashboard"
@@ -144,7 +153,51 @@ function App() {
                 />
 
 
-                {/* Admin Route */}
+                {/* =========================
+                    Payments
+                ========================== */}
+
+                <Route
+                    path="/payments"
+                    element={
+                        <ProtectedRoute>
+                            <Payments />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =========================
+                    Create Payment
+                ========================== */}
+
+                <Route
+                    path="/payments/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreatePayment />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =========================
+                    Payment Details
+                ========================== */}
+
+                <Route
+                    path="/payments/:payment_id"
+                    element={
+                        <ProtectedRoute>
+                            <PaymentDetails />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* =========================
+                    Admin
+                ========================== */}
 
                 <Route
                     path="/admin"
@@ -156,7 +209,9 @@ function App() {
                 />
 
 
-                {/* Default Route */}
+                {/* =========================
+                    Root
+                ========================== */}
 
                 <Route
                     path="/"
@@ -169,7 +224,9 @@ function App() {
                 />
 
 
-                {/* Unknown Route */}
+                {/* =========================
+                    Unknown Route
+                ========================== */}
 
                 <Route
                     path="*"

@@ -46,7 +46,6 @@ api.interceptors.request.use(
 
     },
 
-
     (error) => {
 
         return Promise.reject(error);
@@ -59,8 +58,8 @@ api.interceptors.request.use(
 // =====================================
 // Response Interceptor
 // =====================================
-// If FastAPI returns 401, remove the
-// invalid/expired token.
+// Remove invalid/expired token when
+// FastAPI returns 401.
 // =====================================
 
 api.interceptors.response.use(
@@ -70,7 +69,6 @@ api.interceptors.response.use(
         return response;
 
     },
-
 
     (error) => {
 
@@ -93,7 +91,7 @@ api.interceptors.response.use(
 
 
 // =====================================
-// Register
+// Authentication
 // =====================================
 
 export const registerUser = async (
@@ -110,10 +108,6 @@ export const registerUser = async (
 
 };
 
-
-// =====================================
-// Login
-// =====================================
 
 export const loginUser = async (
     email,
@@ -149,6 +143,93 @@ export const loginUser = async (
             },
         }
 
+    );
+
+
+    return response.data;
+
+};
+
+
+// =====================================
+// Payments
+// =====================================
+
+// Create Payment
+
+export const createPayment = async (
+    paymentData
+) => {
+
+    const response = await api.post(
+        "/payments",
+        paymentData
+    );
+
+
+    return response.data;
+
+};
+
+
+// Get My Payments
+
+export const getMyPayments = async () => {
+
+    const response = await api.get(
+        "/payments"
+    );
+
+
+    return response.data;
+
+};
+
+
+// Get Payment By ID
+
+export const getPayment = async (
+    paymentId
+) => {
+
+    const response = await api.get(
+        `/payments/${paymentId}`
+    );
+
+
+    return response.data;
+
+};
+
+
+// Delete Payment
+
+export const deletePayment = async (
+    paymentId
+) => {
+
+    const response = await api.delete(
+        `/payments/${paymentId}`
+    );
+
+
+    return response.data;
+
+};
+
+
+// =====================================
+// Razorpay Checkout
+// =====================================
+// Used in Phase 4 Part 3.
+// =====================================
+
+export const createCheckout = async (
+    paymentId
+) => {
+
+    const response = await api.post(
+        `/payments/${paymentId}/checkout`
     );
 
 
