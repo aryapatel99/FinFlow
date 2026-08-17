@@ -16,6 +16,8 @@ import {
 
 import PaymentStatus from "../components/PaymentStatus";
 
+import RazorpayCheckout from "../components/RazorpayCheckout";
+
 
 function PaymentDetails() {
 
@@ -294,10 +296,6 @@ function PaymentDetails() {
             )}
 
 
-            {/* ==============================
-                Payment Information
-            =============================== */}
-
             <h2>
                 {payment.description}
             </h2>
@@ -394,10 +392,6 @@ function PaymentDetails() {
             </p>
 
 
-            {/* ==============================
-                Razorpay Information
-            =============================== */}
-
             {payment.razorpay_order_id && (
 
                 <p>
@@ -436,20 +430,54 @@ function PaymentDetails() {
 
 
             {/* ==============================
-                Actions
+                Razorpay Checkout
             =============================== */}
 
             {payment.status === "PENDING" && (
 
-                <button
-                    onClick={() =>
-                        navigate(
-                            `/payments/${payment.payment_id}/checkout`
-                        )
+                <RazorpayCheckout
+
+                    paymentId={
+                        payment.payment_id
                     }
-                >
-                    Pay Now
-                </button>
+
+                    customerName={
+                        payment.customer_name
+                    }
+
+                    customerEmail={
+                        payment.email
+                    }
+
+                />
+
+            )}
+
+
+            {payment.status === "PROCESSING" && (
+
+                <p>
+                    Payment is being processed.
+                    Please wait for confirmation.
+                </p>
+
+            )}
+
+
+            {payment.status === "COMPLETED" && (
+
+                <p>
+                    Payment completed successfully.
+                </p>
+
+            )}
+
+
+            {payment.status === "FAILED" && (
+
+                <p>
+                    Payment failed.
+                </p>
 
             )}
 

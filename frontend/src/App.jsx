@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payments";
 import CreatePayment from "./pages/CreatePayment";
 import PaymentDetails from "./pages/PaymentDetails";
+import PaymentResult from "./pages/PaymentResult";
 
 
 // =====================================
@@ -123,9 +124,7 @@ function App() {
 
             <Routes>
 
-                {/* =========================
-                    Public Routes
-                ========================== */}
+                {/* Public */}
 
                 <Route
                     path="/login"
@@ -139,9 +138,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Customer Dashboard
-                ========================== */}
+                {/* Dashboard */}
 
                 <Route
                     path="/dashboard"
@@ -153,9 +150,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Payments
-                ========================== */}
+                {/* Payments */}
 
                 <Route
                     path="/payments"
@@ -167,9 +162,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Create Payment
-                ========================== */}
+                {/* Create Payment */}
 
                 <Route
                     path="/payments/create"
@@ -181,9 +174,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Payment Details
-                ========================== */}
+                {/* Payment Details */}
 
                 <Route
                     path="/payments/:payment_id"
@@ -195,9 +186,19 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Admin
-                ========================== */}
+                {/* Payment Result */}
+
+                <Route
+                    path="/payments/:payment_id/result"
+                    element={
+                        <ProtectedRoute>
+                            <PaymentResult />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* Admin */}
 
                 <Route
                     path="/admin"
@@ -209,9 +210,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Root
-                ========================== */}
+                {/* Root */}
 
                 <Route
                     path="/"
@@ -224,9 +223,7 @@ function App() {
                 />
 
 
-                {/* =========================
-                    Unknown Route
-                ========================== */}
+                {/* Unknown */}
 
                 <Route
                     path="*"
