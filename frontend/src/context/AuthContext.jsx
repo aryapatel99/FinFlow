@@ -9,7 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import { loginUser } from "../services/api";
 
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 
 // =====================================
@@ -31,6 +31,7 @@ function getUserFromToken(token) {
             decoded.exp &&
             decoded.exp * 1000 < Date.now()
         ) {
+
             localStorage.removeItem(
                 "access_token"
             );

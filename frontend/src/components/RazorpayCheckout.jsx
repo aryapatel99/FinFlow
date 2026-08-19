@@ -9,6 +9,7 @@ import {
 
 import {
     createCheckout,
+    verifyPayment,
 } from "../services/api";
 
 
@@ -242,31 +243,88 @@ function RazorpayCheckout({
                     },
 
 
+                    // ---------------------------------
+                    // Razorpay Success
+                    // ---------------------------------
+
                     handler:
-                        function (
+                        async function (
                             response
                         ) {
 
-                            /*
-                             * The backend webhook is the
-                             * authoritative payment-status
-                             * mechanism.
-                             *
-                             * We only send the customer to
-                             * the result page here.
-                             */
+                            try {
 
-                            navigate(
-                                `/payments/${paymentId}/result?status=success&razorpay_payment_id=${encodeURIComponent(
-                                    response.razorpay_payment_id
-                                )}`,
-                                {
-                                    replace: true,
-                                }
-                            );
+                                setLoading(true);
+
+
+                                await verifyPayment({
+
+                                    payment_id:
+                                        paymentId,
+
+                                    razorpay_order_id:
+                                        response.razorpay_order_id,
+
+                                    razorpay_payment_id:
+                                        response.razorpay_payment_id,
+
+                                    razorpay_signature:
+                                        response.razorpay_signature,
+
+                                });
+
+
+                                navigate(
+
+                                    `/payments/${paymentId}/result?status=success&razorpay_payment_id=${encodeURIComponent(
+                                        response.razorpay_payment_id
+                                    )}`,
+
+                                    {
+                                        replace: true,
+                                    }
+
+                                );
+
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Payment verification failed:",
+                                    error
+                                );
+
+
+                                setError(
+
+                                    error.response?.data?.detail ||
+
+                                    "Payment verification failed."
+
+                                );
+
+
+                                setLoading(false);
+
+
+                                navigate(
+
+                                    `/payments/${paymentId}/result?status=failed`,
+
+                                    {
+                                        replace: true,
+                                    }
+
+                                );
+
+                            }
 
                         },
 
+
+                    // ---------------------------------
+                    // Razorpay Modal Dismissed
+                    // ---------------------------------
 
                     modal: {
 
@@ -290,8 +348,14 @@ function RazorpayCheckout({
                     );
 
 
+                // ---------------------------------
+                // Razorpay Payment Failed
+                // ---------------------------------
+
                 razorpay.on(
+
                     "payment.failed",
+
                     function () {
 
                         setLoading(
@@ -300,13 +364,17 @@ function RazorpayCheckout({
 
 
                         navigate(
+
                             `/payments/${paymentId}/result?status=failed`,
+
                             {
                                 replace: true,
                             }
+
                         );
 
                     }
+
                 );
 
 
@@ -322,8 +390,11 @@ function RazorpayCheckout({
 
 
                 setError(
+
                     error.response?.data?.detail ||
+
                     "Unable to start Razorpay checkout."
+
                 );
 
 
@@ -335,6 +406,7 @@ function RazorpayCheckout({
 
 
     return (
+
         <div>
 
             {error && (
@@ -350,7 +422,9 @@ function RazorpayCheckout({
 
                 type="button"
 
-                onClick={handleCheckout}
+                onClick={
+                    handleCheckout
+                }
 
                 disabled={
                     loading ||
@@ -360,16 +434,23 @@ function RazorpayCheckout({
             >
 
                 {loading
-                    ? "Opening Razorpay..."
+
+                    ? "Processing Payment..."
+
                     : scriptLoaded
+
                         ? "Pay Now"
+
                         : "Loading Razorpay..."
+
                 }
 
             </button>
 
         </div>
+
     );
+
 }
 
 

@@ -5,7 +5,14 @@ import {
     Routes,
 } from "react-router-dom";
 
-import { useAuth } from "./context/AuthContext";
+import {
+    useContext,
+} from "react";
+
+import {
+    AuthContext,
+} from "./context/AuthContext";
+
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -15,19 +22,35 @@ import CreatePayment from "./pages/CreatePayment";
 import PaymentDetails from "./pages/PaymentDetails";
 import PaymentResult from "./pages/PaymentResult";
 
+import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
 
-// =====================================
-// Protected Route
-// =====================================
+import AdminUsers from "./pages/AdminUsers";
+import AdminPayments from "./pages/AdminPayments";
 
-function ProtectedRoute({ children }) {
+
+function ProtectedRoute({
+    children,
+}) {
 
     const {
-        isAuthenticated,
-    } = useAuth();
+        user,
+        loading,
+    } = useContext(AuthContext);
 
 
-    if (!isAuthenticated) {
+    if (loading) {
+
+        return (
+            <div>
+                Loading...
+            </div>
+        );
+
+    }
+
+
+    if (!user) {
 
         return (
             <Navigate
@@ -35,6 +58,7 @@ function ProtectedRoute({ children }) {
                 replace
             />
         );
+
     }
 
 
@@ -42,19 +66,28 @@ function ProtectedRoute({ children }) {
 }
 
 
-// =====================================
-// Admin Route
-// =====================================
-
-function AdminRoute({ children }) {
+function AdminRoute({
+    children,
+}) {
 
     const {
-        isAuthenticated,
         user,
-    } = useAuth();
+        loading,
+    } = useContext(AuthContext);
 
 
-    if (!isAuthenticated) {
+    if (loading) {
+
+        return (
+            <div>
+                Loading...
+            </div>
+        );
+
+    }
+
+
+    if (!user) {
 
         return (
             <Navigate
@@ -62,10 +95,11 @@ function AdminRoute({ children }) {
                 replace
             />
         );
+
     }
 
 
-    if (user?.role !== "admin") {
+    if (user.role !== "admin") {
 
         return (
             <Navigate
@@ -73,49 +107,13 @@ function AdminRoute({ children }) {
                 replace
             />
         );
+
     }
 
 
     return children;
 }
 
-
-// =====================================
-// Temporary Admin Dashboard
-// =====================================
-
-function AdminDashboard() {
-
-    const {
-        user,
-    } = useAuth();
-
-
-    return (
-        <div>
-
-            <h1>
-                FinFlow Admin Dashboard
-            </h1>
-
-
-            <p>
-                Welcome, {user?.email}
-            </p>
-
-
-            <p>
-                Role: {user?.role}
-            </p>
-
-        </div>
-    );
-}
-
-
-// =====================================
-// Application
-// =====================================
 
 function App() {
 
@@ -124,13 +122,14 @@ function App() {
 
             <Routes>
 
-                {/* Public */}
+                {/* ==========================
+                    Public
+                ========================== */}
 
                 <Route
                     path="/login"
                     element={<Login />}
                 />
-
 
                 <Route
                     path="/register"
@@ -138,7 +137,9 @@ function App() {
                 />
 
 
-                {/* Dashboard */}
+                {/* ==========================
+                    Customer / Authenticated
+                ========================== */}
 
                 <Route
                     path="/dashboard"
@@ -149,9 +150,6 @@ function App() {
                     }
                 />
 
-
-                {/* Payments */}
-
                 <Route
                     path="/payments"
                     element={
@@ -160,9 +158,6 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-
-
-                {/* Create Payment */}
 
                 <Route
                     path="/payments/create"
@@ -173,11 +168,8 @@ function App() {
                     }
                 />
 
-
-                {/* Payment Details */}
-
                 <Route
-                    path="/payments/:payment_id"
+                    path="/payments/:paymentId"
                     element={
                         <ProtectedRoute>
                             <PaymentDetails />
@@ -185,11 +177,8 @@ function App() {
                     }
                 />
 
-
-                {/* Payment Result */}
-
                 <Route
-                    path="/payments/:payment_id/result"
+                    path="/payments/:paymentId/result"
                     element={
                         <ProtectedRoute>
                             <PaymentResult />
@@ -197,20 +186,51 @@ function App() {
                     }
                 />
 
-
-                {/* Admin */}
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
 
                 <Route
-                    path="/admin"
+                    path="/change-password"
+                    element={
+                        <ProtectedRoute>
+                            <ChangePassword />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* ==========================
+                    Admin
+                ========================== */}
+
+                <Route
+                    path="/admin/users"
                     element={
                         <AdminRoute>
-                            <AdminDashboard />
+                            <AdminUsers />
+                        </AdminRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/payments"
+                    element={
+                        <AdminRoute>
+                            <AdminPayments />
                         </AdminRoute>
                     }
                 />
 
 
-                {/* Root */}
+                {/* ==========================
+                    Default
+                ========================== */}
 
                 <Route
                     path="/"
@@ -221,9 +241,6 @@ function App() {
                         />
                     }
                 />
-
-
-                {/* Unknown */}
 
                 <Route
                     path="*"

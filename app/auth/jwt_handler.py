@@ -2,39 +2,51 @@ from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
 
-# Change this before deploying your app
-SECRET_KEY = "your-super-secret-key-change-this-in-production"
+from app.config.settings import settings
 
-ALGORITHM = "HS256"
+
+ALGORITHM = settings.jwt_algorithm
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 def create_access_token(data: dict) -> str:
+
     to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    expire = (
+        datetime.now(timezone.utc)
+        + timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     )
 
-    to_encode.update({"exp": expire})
+    to_encode.update(
+        {
+            "exp": expire
+        }
+    )
 
     return jwt.encode(
         to_encode,
-        SECRET_KEY,
+        settings.jwt_secret_key,
         algorithm=ALGORITHM,
     )
 
 
-def verify_access_token(token: str):
+def verify_access_token(
+    token: str,
+):
     try:
+
         payload = jwt.decode(
             token,
-            SECRET_KEY,
+            settings.jwt_secret_key,
             algorithms=[ALGORITHM],
         )
 
         return payload
 
     except JWTError:
+
         return None

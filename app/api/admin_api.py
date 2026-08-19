@@ -1,16 +1,32 @@
 from fastapi import APIRouter, Depends
 
 from app.auth.dependencies import require_admin
+
 from app.schemas.dashboard_schema import DashboardResponse
-from app.schemas.payment_schema import PaymentResponse, MessageResponse
-from app.schemas.payment_status_schema import PaymentStatusUpdate
+
+from app.schemas.password_schema import (
+    AdminPasswordResetRequest,
+)
+
+from app.schemas.payment_schema import (
+    PaymentResponse,
+    MessageResponse,
+)
+
+from app.schemas.payment_status_schema import (
+    PaymentStatusUpdate,
+)
+
 from app.schemas.user_schema import UserResponse
+
 from app.services.admin_service import AdminService
+
 
 router = APIRouter(
     prefix="/admin",
-    tags=["Admin"]
+    tags=["Admin"],
 )
+
 
 admin_service = AdminService()
 
@@ -21,63 +37,93 @@ admin_service = AdminService()
 
 @router.get(
     "/dashboard",
-    response_model=DashboardResponse
+    response_model=DashboardResponse,
 )
 def get_dashboard(
     current_admin=Depends(require_admin),
 ):
+
     return admin_service.get_dashboard_statistics()
 
 
 # ==========================
-# User Management
+# Users
 # ==========================
 
 @router.get(
     "/users",
-    response_model=list[UserResponse]
+    response_model=list[UserResponse],
 )
 def get_all_users(
     current_admin=Depends(require_admin),
 ):
+
     return admin_service.get_all_users()
 
 
 @router.get(
     "/users/{email}",
-    response_model=UserResponse
+    response_model=UserResponse,
 )
 def get_user(
     email: str,
     current_admin=Depends(require_admin),
 ):
-    return admin_service.get_user(email)
+
+    return admin_service.get_user(
+        email
+    )
 
 
 @router.patch(
     "/users/{email}/role",
-    response_model=UserResponse
+    response_model=UserResponse,
 )
 def update_user_role(
     email: str,
     role: str,
     current_admin=Depends(require_admin),
 ):
+
     return admin_service.update_user_role(
         email,
-        role
+        role,
+    )
+
+
+@router.patch(
+    "/users/{email}/password",
+    response_model=MessageResponse,
+)
+def reset_user_password(
+    email: str,
+    data: AdminPasswordResetRequest,
+    current_admin=Depends(require_admin),
+):
+
+    admin_service.reset_user_password(
+        email,
+        data.new_password,
+    )
+
+    return MessageResponse(
+        message="User password updated successfully."
     )
 
 
 @router.delete(
     "/users/{email}",
-    response_model=MessageResponse
+    response_model=MessageResponse,
 )
 def delete_user(
     email: str,
     current_admin=Depends(require_admin),
 ):
-    admin_service.delete_user(email)
+
+    admin_service.delete_user(
+        email,
+        current_admin.get("email"),
+    )
 
     return MessageResponse(
         message="User deleted successfully."
@@ -85,39 +131,44 @@ def delete_user(
 
 
 # ==========================
-# Payment Management
+# Payments
 # ==========================
 
 @router.get(
     "/payments",
-    response_model=list[PaymentResponse]
+    response_model=list[PaymentResponse],
 )
 def get_all_payments(
     current_admin=Depends(require_admin),
 ):
+
     return admin_service.get_all_payments()
 
 
 @router.get(
     "/payments/{payment_id}",
-    response_model=PaymentResponse
+    response_model=PaymentResponse,
 )
 def get_payment(
     payment_id: str,
     current_admin=Depends(require_admin),
 ):
-    return admin_service.get_payment(payment_id)
+
+    return admin_service.get_payment(
+        payment_id
+    )
 
 
 @router.patch(
     "/payments/{payment_id}/status",
-    response_model=PaymentResponse
+    response_model=PaymentResponse,
 )
 def update_payment_status(
     payment_id: str,
     payment_status: PaymentStatusUpdate,
     current_admin=Depends(require_admin),
 ):
+
     return admin_service.update_payment_status(
         payment_id,
         payment_status.status,
@@ -126,13 +177,16 @@ def update_payment_status(
 
 @router.delete(
     "/payments/{payment_id}",
-    response_model=MessageResponse
+    response_model=MessageResponse,
 )
 def delete_payment(
     payment_id: str,
     current_admin=Depends(require_admin),
 ):
-    admin_service.delete_payment(payment_id)
+
+    admin_service.delete_payment(
+        payment_id
+    )
 
     return MessageResponse(
         message="Payment deleted successfully."
