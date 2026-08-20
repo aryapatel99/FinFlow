@@ -68,3 +68,9 @@ dist/
 app/config/secrets.py
 # Node.js
 node_modules/
+
+# FinFlow application secrets
+app/config/secrets.py
+frontend/.env
+frontend/.env.local
+frontend/.env.production

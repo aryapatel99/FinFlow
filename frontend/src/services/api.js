@@ -1,10 +1,23 @@
 import axios from "axios";
 
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_URL ||
-    "http://127.0.0.1:8000";
+// =====================================
+// API Configuration
+// =====================================
 
+const API_BASE_URL =
+    import.meta.env.VITE_API_URL;
+
+if (!API_BASE_URL) {
+    throw new Error(
+        "VITE_API_URL is not configured."
+    );
+}
+
+
+// =====================================
+// Axios Instance
+// =====================================
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -22,7 +35,9 @@ api.interceptors.request.use(
     (config) => {
 
         const token =
-            localStorage.getItem("access_token");
+            localStorage.getItem(
+                "access_token"
+            );
 
         if (token) {
 
@@ -35,7 +50,9 @@ api.interceptors.request.use(
     },
 
     (error) => {
+
         return Promise.reject(error);
+
     }
 );
 
@@ -58,7 +75,10 @@ export const registerUser =
 
 
 export const loginUser =
-    async (email, password) => {
+    async (
+        email,
+        password
+    ) => {
 
         const formData =
             new URLSearchParams();
