@@ -3,8 +3,26 @@ import {
 } from "react";
 
 import {
-    changeMyPassword,
+    ShieldCheck,
+    LockKeyhole,
+    CheckCircle2,
+    AlertTriangle,
+    Eye,
+    EyeOff,
+    ArrowLeft,
+} from "lucide-react";
+
+import {
+    Link,
+} from "react-router-dom";
+
+import AppShell from "../components/AppShell";
+
+import {
+    changePassword,
 } from "../services/api";
+
+import "../styles/premium-pages.css";
 
 
 function ChangePassword() {
@@ -25,6 +43,26 @@ function ChangePassword() {
     ] = useState("");
 
     const [
+        showCurrent,
+        setShowCurrent,
+    ] = useState(false);
+
+    const [
+        showNew,
+        setShowNew,
+    ] = useState(false);
+
+    const [
+        showConfirm,
+        setShowConfirm,
+    ] = useState(false);
+
+    const [
+        loading,
+        setLoading,
+    ] = useState(false);
+
+    const [
         message,
         setMessage,
     ] = useState("");
@@ -33,11 +71,6 @@ function ChangePassword() {
         error,
         setError,
     ] = useState("");
-
-    const [
-        loading,
-        setLoading,
-    ] = useState(false);
 
 
     const handleSubmit =
@@ -54,7 +87,7 @@ function ChangePassword() {
             ) {
 
                 setError(
-                    "New passwords do not match."
+                    "New password and confirmation do not match."
                 );
 
                 return;
@@ -64,7 +97,7 @@ function ChangePassword() {
             if (newPassword.length < 8) {
 
                 setError(
-                    "New password must contain at least 8 characters."
+                    "Your new password must contain at least 8 characters."
                 );
 
                 return;
@@ -75,26 +108,24 @@ function ChangePassword() {
 
             try {
 
-                const response =
-                    await changeMyPassword(
-                        currentPassword,
-                        newPassword
-                    );
-
-                setMessage(
-                    response.message ||
-                    "Password changed successfully."
+                await changePassword(
+                    currentPassword,
+                    newPassword
                 );
 
                 setCurrentPassword("");
                 setNewPassword("");
                 setConfirmPassword("");
 
-            } catch (err) {
+                setMessage(
+                    "Your password has been changed successfully."
+                );
+
+            } catch (error) {
 
                 setError(
-                    err.response?.data?.detail ||
-                    "Unable to change password."
+                    error?.response?.data?.detail ||
+                    "Unable to change your password."
                 );
 
             } finally {
@@ -107,94 +138,374 @@ function ChangePassword() {
 
 
     return (
-        <div>
+        <AppShell>
 
-            <h1>Change Password</h1>
+            <main className="ff-premium-page">
 
-            {message && (
-                <p>{message}</p>
-            )}
+                <header className="ff-page-header">
 
-            {error && (
-                <p>{error}</p>
-            )}
+                    <div className="ff-page-header-copy">
 
-            <form
-                onSubmit={handleSubmit}
-            >
+                        <div className="ff-eyebrow">
+                            <span className="ff-eyebrow-dot" />
+                            SECURITY
+                        </div>
 
-                <div>
+                        <h1>
+                            Security Settings
+                        </h1>
 
-                    <label>
-                        Current Password
-                    </label>
+                        <p>
+                            Protect your FinFlow account by keeping
+                            your authentication credentials secure.
+                        </p>
 
-                    <input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(event) =>
-                            setCurrentPassword(
-                                event.target.value
-                            )
-                        }
-                        required
-                    />
+                    </div>
 
-                </div>
+                </header>
 
-                <div>
 
-                    <label>
-                        New Password
-                    </label>
+                {message && (
+                    <div className="ff-message success">
+                        {message}
+                    </div>
+                )}
 
-                    <input
-                        type="password"
-                        value={newPassword}
-                        onChange={(event) =>
-                            setNewPassword(
-                                event.target.value
-                            )
-                        }
-                        minLength={8}
-                        required
-                    />
 
-                </div>
+                {error && (
+                    <div className="ff-message error">
+                        {error}
+                    </div>
+                )}
 
-                <div>
 
-                    <label>
-                        Confirm New Password
-                    </label>
-
-                    <input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(event) =>
-                            setConfirmPassword(
-                                event.target.value
-                            )
-                        }
-                        minLength={8}
-                        required
-                    />
-
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
+                <div
+                    style={{
+                        maxWidth: "900px",
+                    }}
                 >
-                    {loading
-                        ? "Changing..."
-                        : "Change Password"
-                    }
-                </button>
 
-            </form>
+                    <section className="ff-panel ff-form-card">
 
-        </div>
+                        <div className="ff-form-card-header">
+
+                            <div className="ff-form-card-icon">
+                                <LockKeyhole size={20} />
+                            </div>
+
+                            <div>
+
+                                <h2>
+                                    Change your password
+                                </h2>
+
+                                <p>
+                                    Choose a strong password you do not reuse elsewhere.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <form
+                            onSubmit={handleSubmit}
+                        >
+
+                            <div className="ff-form-field">
+
+                                <label>
+                                    Current password
+                                </label>
+
+                                <div
+                                    style={{
+                                        position: "relative",
+                                    }}
+                                >
+
+                                    <input
+                                        type={
+                                            showCurrent
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        value={
+                                            currentPassword
+                                        }
+                                        onChange={(event) =>
+                                            setCurrentPassword(
+                                                event.target.value
+                                            )
+                                        }
+                                        required
+                                        style={{
+                                            paddingRight: "48px",
+                                        }}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowCurrent(
+                                                (value) =>
+                                                    !value
+                                            )
+                                        }
+                                        style={{
+                                            position: "absolute",
+                                            right: "8px",
+                                            top: "50%",
+                                            transform:
+                                                "translateY(-50%)",
+                                            width: "38px",
+                                            height: "38px",
+                                            border: 0,
+                                            borderRadius: "9px",
+                                            background:
+                                                "transparent",
+                                            color: "#7386a4",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {showCurrent ? (
+                                            <EyeOff size={17} />
+                                        ) : (
+                                            <Eye size={17} />
+                                        )}
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="ff-form-field">
+
+                                <label>
+                                    New password
+                                </label>
+
+                                <div
+                                    style={{
+                                        position: "relative",
+                                    }}
+                                >
+
+                                    <input
+                                        type={
+                                            showNew
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        value={
+                                            newPassword
+                                        }
+                                        onChange={(event) =>
+                                            setNewPassword(
+                                                event.target.value
+                                            )
+                                        }
+                                        minLength={8}
+                                        required
+                                        style={{
+                                            paddingRight: "48px",
+                                        }}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowNew(
+                                                (value) =>
+                                                    !value
+                                            )
+                                        }
+                                        style={{
+                                            position: "absolute",
+                                            right: "8px",
+                                            top: "50%",
+                                            transform:
+                                                "translateY(-50%)",
+                                            width: "38px",
+                                            height: "38px",
+                                            border: 0,
+                                            borderRadius: "9px",
+                                            background:
+                                                "transparent",
+                                            color: "#7386a4",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {showNew ? (
+                                            <EyeOff size={17} />
+                                        ) : (
+                                            <Eye size={17} />
+                                        )}
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="ff-form-field">
+
+                                <label>
+                                    Confirm new password
+                                </label>
+
+                                <div
+                                    style={{
+                                        position: "relative",
+                                    }}
+                                >
+
+                                    <input
+                                        type={
+                                            showConfirm
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        value={
+                                            confirmPassword
+                                        }
+                                        onChange={(event) =>
+                                            setConfirmPassword(
+                                                event.target.value
+                                            )
+                                        }
+                                        minLength={8}
+                                        required
+                                        style={{
+                                            paddingRight: "48px",
+                                        }}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowConfirm(
+                                                (value) =>
+                                                    !value
+                                            )
+                                        }
+                                        style={{
+                                            position: "absolute",
+                                            right: "8px",
+                                            top: "50%",
+                                            transform:
+                                                "translateY(-50%)",
+                                            width: "38px",
+                                            height: "38px",
+                                            border: 0,
+                                            borderRadius: "9px",
+                                            background:
+                                                "transparent",
+                                            color: "#7386a4",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {showConfirm ? (
+                                            <EyeOff size={17} />
+                                        ) : (
+                                            <Eye size={17} />
+                                        )}
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                className="ff-primary-btn"
+                                disabled={loading}
+                            >
+                                <ShieldCheck size={17} />
+
+                                {loading
+                                    ? "Updating password…"
+                                    : "Update Password"
+                                }
+                            </button>
+
+                        </form>
+
+                    </section>
+
+
+                    <section
+                        className="ff-panel ff-form-card"
+                        style={{
+                            marginTop: "18px",
+                        }}
+                    >
+
+                        <div className="ff-form-card-header">
+
+                            <div className="ff-form-card-icon">
+                                <CheckCircle2 size={20} />
+                            </div>
+
+                            <div>
+
+                                <h2>
+                                    Password requirements
+                                </h2>
+
+                                <p>
+                                    Use a password that is difficult to guess.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            style={{
+                                display: "grid",
+                                gap: "11px",
+                                color: "#8496b2",
+                                fontSize: "13px",
+                            }}
+                        >
+
+                            <div>
+                                ✓ At least 8 characters
+                            </div>
+
+                            <div>
+                                ✓ Avoid passwords used on other services
+                            </div>
+
+                            <div>
+                                ✓ Avoid easily guessed personal information
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <Link
+                        to="/profile"
+                        className="ff-secondary-btn"
+                        style={{
+                            marginTop: "18px",
+                        }}
+                    >
+                        <ArrowLeft size={16} />
+                        Back to Profile
+                    </Link>
+
+                </div>
+
+            </main>
+
+        </AppShell>
     );
 }
 

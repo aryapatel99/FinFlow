@@ -22,9 +22,7 @@ api.interceptors.request.use(
     (config) => {
 
         const token =
-            localStorage.getItem(
-                "access_token"
-            );
+            localStorage.getItem("access_token");
 
         if (token) {
 
@@ -34,9 +32,11 @@ api.interceptors.request.use(
         }
 
         return config;
-
     },
-    (error) => Promise.reject(error)
+
+    (error) => {
+        return Promise.reject(error);
+    }
 );
 
 
@@ -105,10 +105,20 @@ export const getMyProfile =
     };
 
 
+// Compatibility alias used by Profile.jsx
+
+export const getAccount =
+    getMyProfile;
+
+
+// =====================================
+// User Password
+// =====================================
+
 export const changeMyPassword =
     async (
         current_password,
-        new_password,
+        new_password
     ) => {
 
         const response =
@@ -122,6 +132,12 @@ export const changeMyPassword =
 
         return response.data;
     };
+
+
+// Compatibility alias used by ChangePassword.jsx
+
+export const changePassword =
+    changeMyPassword;
 
 
 // =====================================
@@ -154,6 +170,7 @@ export const getPayments =
 
 
 // Alias used by Payments.jsx
+
 export const getMyPayments =
     async () => {
 
@@ -206,12 +223,16 @@ export const createCheckout =
     };
 
 
+// =====================================
+// Razorpay Verification
+// =====================================
+
 export const verifyPayment =
-    async (
+    async ({
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
-    ) => {
+    }) => {
 
         const response =
             await api.post(
@@ -274,7 +295,7 @@ export const getAdminUser =
 export const updateUserRole =
     async (
         email,
-        role,
+        role
     ) => {
 
         const response =
@@ -292,10 +313,16 @@ export const updateUserRole =
     };
 
 
+// Compatibility alias used by AdminUsers.jsx
+
+export const updateAdminUserRole =
+    updateUserRole;
+
+
 export const resetUserPassword =
     async (
         email,
-        new_password,
+        new_password
     ) => {
 
         const response =
@@ -320,6 +347,12 @@ export const deleteUser =
 
         return response.data;
     };
+
+
+// Compatibility alias used by AdminUsers.jsx
+
+export const deleteAdminUser =
+    deleteUser;
 
 
 // =====================================
@@ -353,7 +386,7 @@ export const getAdminPayment =
 export const updateAdminPaymentStatus =
     async (
         paymentId,
-        status,
+        status
     ) => {
 
         const response =
@@ -379,5 +412,9 @@ export const deleteAdminPayment =
         return response.data;
     };
 
+
+// =====================================
+// Default Axios Instance
+// =====================================
 
 export default api;

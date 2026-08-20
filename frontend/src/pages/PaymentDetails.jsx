@@ -15,37 +15,32 @@ import {
 } from "../services/api";
 
 import PaymentStatus from "../components/PaymentStatus";
-
 import RazorpayCheckout from "../components/RazorpayCheckout";
+import AppShell from "../components/AppShell";
 
 
 function PaymentDetails() {
 
     const {
-        payment_id,
+        paymentId,
     } = useParams();
 
-
     const navigate = useNavigate();
-
 
     const [
         payment,
         setPayment
     ] = useState(null);
 
-
     const [
         loading,
         setLoading
     ] = useState(true);
 
-
     const [
         error,
         setError
     ] = useState("");
-
 
     const [
         deleting,
@@ -53,191 +48,221 @@ function PaymentDetails() {
     ] = useState(false);
 
 
-    // =====================================
-    // Load Payment
-    // =====================================
+    // =========================================
+    // LOAD PAYMENT
+    // =========================================
 
-    const loadPayment =
-        async () => {
+    const loadPayment = async () => {
 
-            setLoading(true);
+        setLoading(true);
+        setError("");
 
-            setError("");
+        try {
 
+            const data =
+                await getPayment(paymentId);
 
-            try {
+            setPayment(data);
 
-                const data =
-                    await getPayment(
-                        payment_id
-                    );
+        } catch (error) {
 
+            console.error(
+                "Failed to load payment:",
+                error
+            );
 
-                setPayment(data);
+            setError(
+                error.response?.data?.detail ||
+                "Unable to load payment."
+            );
 
-            } catch (error) {
+        } finally {
 
-                console.error(
-                    "Failed to load payment:",
-                    error
-                );
+            setLoading(false);
 
+        }
 
-                setError(
-                    error.response?.data?.detail ||
-                    "Unable to load payment."
-                );
-
-            } finally {
-
-                setLoading(false);
-
-            }
-
-        };
+    };
 
 
     useEffect(() => {
 
         loadPayment();
 
-    }, [payment_id]);
+    }, [paymentId]);
 
 
-    // =====================================
-    // Delete Payment
-    // =====================================
+    // =========================================
+    // DELETE PAYMENT
+    // =========================================
 
-    const handleDelete =
-        async () => {
+    const handleDelete = async () => {
 
-            const confirmed =
-                window.confirm(
-                    "Are you sure you want to delete this payment?"
-                );
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to delete this payment?"
+            );
 
+        if (!confirmed) {
+            return;
+        }
 
-            if (!confirmed) {
-                return;
-            }
+        setDeleting(true);
+        setError("");
 
+        try {
 
-            setDeleting(true);
+            await deletePayment(
+                paymentId
+            );
 
-            setError("");
+            navigate(
+                "/payments",
+                {
+                    replace: true,
+                }
+            );
 
+        } catch (error) {
 
-            try {
+            console.error(
+                "Failed to delete payment:",
+                error
+            );
 
-                await deletePayment(
-                    payment_id
-                );
+            setError(
+                error.response?.data?.detail ||
+                "Unable to delete payment."
+            );
 
+        } finally {
 
-                navigate(
-                    "/payments",
-                    {
-                        replace: true,
-                    }
-                );
+            setDeleting(false);
 
-            } catch (error) {
+        }
 
-                console.error(
-                    "Failed to delete payment:",
-                    error
-                );
-
-
-                setError(
-                    error.response?.data?.detail ||
-                    "Unable to delete payment."
-                );
-
-            } finally {
-
-                setDeleting(false);
-
-            }
-
-        };
+    };
 
 
-    // =====================================
-    // Loading
-    // =====================================
+    // =========================================
+    // LOADING
+    // =========================================
 
     if (loading) {
 
         return (
-            <div>
 
-                <p>
-                    Loading payment...
-                </p>
+            <AppShell>
 
-            </div>
+                <main className="ff-payment-details-page">
+
+                    <div className="ff-details-loading">
+
+                        <div className="ff-loading-spinner" />
+
+                        <span>
+                            Loading payment details...
+                        </span>
+
+                    </div>
+
+                </main>
+
+            </AppShell>
+
         );
 
     }
 
 
-    // =====================================
-    // Error
-    // =====================================
+    // =========================================
+    // ERROR
+    // =========================================
 
     if (error && !payment) {
 
         return (
-            <div>
 
-                <h1>
-                    Payment
-                </h1>
+            <AppShell>
 
+                <main className="ff-payment-details-page">
 
-                <p>
-                    {error}
-                </p>
+                    <div className="ff-details-error">
 
+                        <div className="ff-details-error-icon">
+                            !
+                        </div>
 
-                <Link to="/payments">
-                    Back to Payments
-                </Link>
+                        <h2>
+                            Unable to load payment
+                        </h2>
 
-            </div>
+                        <p>
+                            {error}
+                        </p>
+
+                        <Link
+                            to="/payments"
+                            className="ff-primary-action"
+                        >
+                            ← Back to Payments
+                        </Link>
+
+                    </div>
+
+                </main>
+
+            </AppShell>
+
         );
 
     }
 
-
-    // =====================================
-    // Payment Not Found
-    // =====================================
 
     if (!payment) {
 
         return (
-            <div>
 
-                <h1>
-                    Payment Not Found
-                </h1>
+            <AppShell>
 
+                <main className="ff-payment-details-page">
 
-                <Link to="/payments">
-                    Back to Payments
-                </Link>
+                    <div className="ff-details-error">
 
-            </div>
+                        <div className="ff-details-error-icon">
+                            ?
+                        </div>
+
+                        <h2>
+                            Payment Not Found
+                        </h2>
+
+                        <p>
+                            The payment you're looking for
+                            could not be found.
+                        </p>
+
+                        <Link
+                            to="/payments"
+                            className="ff-primary-action"
+                        >
+                            ← Back to Payments
+                        </Link>
+
+                    </div>
+
+                </main>
+
+            </AppShell>
+
         );
 
     }
 
 
-    // =====================================
-    // Formatting
-    // =====================================
+    // =========================================
+    // FORMATTING
+    // =========================================
 
     const formattedAmount =
         new Intl.NumberFormat(
@@ -252,254 +277,594 @@ function PaymentDetails() {
     const createdDate =
         new Date(
             payment.created_at
-        ).toLocaleString();
+        ).toLocaleString(
+            "en-IN",
+            {
+                dateStyle: "medium",
+                timeStyle: "short",
+            }
+        );
 
 
     const updatedDate =
         new Date(
             payment.updated_at
-        ).toLocaleString();
+        ).toLocaleString(
+            "en-IN",
+            {
+                dateStyle: "medium",
+                timeStyle: "short",
+            }
+        );
+
+
+    const status =
+        payment.status?.toUpperCase();
+
+
+    const statusClass =
+        status === "COMPLETED"
+            ? "success"
+            : status === "FAILED"
+                ? "danger"
+                : status === "PROCESSING"
+                    ? "warning"
+                    : "pending";
 
 
     return (
-        <div>
 
-            <h1>
-                Payment Details
-            </h1>
+        <AppShell>
 
+            <main className="ff-payment-details-page">
 
-            <p>
+                {/* =================================
+                    TOP BAR
+                ================================= */}
 
-                <Link to="/dashboard">
-                    Dashboard
-                </Link>
+                <div className="ff-details-topbar">
 
-                {" | "}
+                    <Link
+                        to="/payments"
+                        className="ff-back-link"
+                    >
+                        ← Back to Payments
+                    </Link>
 
-                <Link to="/payments">
-                    My Payments
-                </Link>
+                </div>
 
-            </p>
 
+                {/* =================================
+                    PAGE HEADER
+                ================================= */}
 
-            <hr />
+                <section className="ff-details-header">
 
+                    <div>
 
-            {error && (
+                        <div className="ff-eyebrow">
+                            PAYMENT DETAILS
+                        </div>
 
-                <p>
-                    {error}
-                </p>
+                        <h1>
+                            {payment.description}
+                        </h1>
 
-            )}
+                        <p>
+                            Complete information associated
+                            with this transaction.
+                        </p>
 
+                    </div>
 
-            <h2>
-                {payment.description}
-            </h2>
 
+                    <div
+                        className={
+                            `ff-details-status ff-status-${statusClass}`
+                        }
+                    >
 
-            <p>
-                <strong>
-                    Payment ID:
-                </strong>
+                        <span className="ff-status-indicator" />
 
-                {" "}
+                        {status}
 
-                {payment.payment_id}
-            </p>
+                    </div>
 
+                </section>
 
-            <p>
-                <strong>
-                    Customer:
-                </strong>
 
-                {" "}
+                {/* =================================
+                    MAIN GRID
+                ================================= */}
 
-                {payment.customer_name}
-            </p>
+                <section className="ff-details-grid">
 
+                    {/* =================================
+                        LEFT COLUMN
+                    ================================= */}
 
-            <p>
-                <strong>
-                    Email:
-                </strong>
+                    <div className="ff-details-main">
 
-                {" "}
 
-                {payment.email}
-            </p>
+                        {/* PAYMENT OVERVIEW */}
 
+                        <div className="ff-detail-card ff-overview-card">
 
-            <p>
-                <strong>
-                    Amount:
-                </strong>
+                            <div className="ff-card-heading">
 
-                {" "}
+                                <div className="ff-card-icon">
+                                    ₹
+                                </div>
 
-                {formattedAmount}
-            </p>
+                                <div>
 
+                                    <span>
+                                        PAYMENT AMOUNT
+                                    </span>
 
-            <p>
-                <strong>
-                    Currency:
-                </strong>
+                                    <h2>
+                                        {formattedAmount}
+                                    </h2>
 
-                {" "}
+                                </div>
 
-                {payment.currency}
-            </p>
+                            </div>
 
 
-            <p>
-                <strong>
-                    Status:
-                </strong>
+                            <div className="ff-overview-meta">
 
-                {" "}
+                                <div>
 
-                <PaymentStatus
-                    status={payment.status}
-                />
+                                    <span>
+                                        Currency
+                                    </span>
 
-            </p>
+                                    <strong>
+                                        {payment.currency}
+                                    </strong>
 
+                                </div>
 
-            <p>
-                <strong>
-                    Created:
-                </strong>
+                                <div>
 
-                {" "}
+                                    <span>
+                                        Status
+                                    </span>
 
-                {createdDate}
-            </p>
+                                    <strong>
+                                        {status}
+                                    </strong>
 
+                                </div>
 
-            <p>
-                <strong>
-                    Last Updated:
-                </strong>
+                                <div>
 
-                {" "}
+                                    <span>
+                                        Type
+                                    </span>
 
-                {updatedDate}
-            </p>
+                                    <strong>
+                                        Transaction
+                                    </strong>
 
+                                </div>
 
-            {payment.razorpay_order_id && (
+                            </div>
 
-                <p>
+                        </div>
 
-                    <strong>
-                        Razorpay Order ID:
-                    </strong>
 
-                    {" "}
+                        {/* PAYMENT INFORMATION */}
 
-                    {payment.razorpay_order_id}
+                        <div className="ff-detail-card">
 
-                </p>
+                            <div className="ff-section-heading">
 
-            )}
+                                <div className="ff-section-icon">
+                                    ◈
+                                </div>
 
+                                <div>
 
-            {payment.razorpay_payment_id && (
+                                    <h3>
+                                        Payment Information
+                                    </h3>
 
-                <p>
+                                    <p>
+                                        Identifiers and customer
+                                        information for this transaction.
+                                    </p>
 
-                    <strong>
-                        Razorpay Payment ID:
-                    </strong>
+                                </div>
 
-                    {" "}
+                            </div>
 
-                    {payment.razorpay_payment_id}
 
-                </p>
+                            <div className="ff-information-grid">
 
-            )}
+                                <div className="ff-information-item">
 
+                                    <span>
+                                        Payment ID
+                                    </span>
 
-            <hr />
+                                    <strong className="ff-mono-value">
+                                        {payment.payment_id}
+                                    </strong>
 
+                                </div>
 
-            {/* ==============================
-                Razorpay Checkout
-            =============================== */}
 
-            {payment.status === "PENDING" && (
+                                <div className="ff-information-item">
 
-                <RazorpayCheckout
+                                    <span>
+                                        Customer
+                                    </span>
 
-                    paymentId={
-                        payment.payment_id
-                    }
+                                    <strong>
+                                        {payment.customer_name}
+                                    </strong>
 
-                    customerName={
-                        payment.customer_name
-                    }
+                                </div>
 
-                    customerEmail={
-                        payment.email
-                    }
 
-                />
+                                <div className="ff-information-item">
 
-            )}
+                                    <span>
+                                        Email
+                                    </span>
 
+                                    <strong>
+                                        {payment.email}
+                                    </strong>
 
-            {payment.status === "PROCESSING" && (
+                                </div>
 
-                <p>
-                    Payment is being processed.
-                    Please wait for confirmation.
-                </p>
 
-            )}
+                                <div className="ff-information-item">
 
+                                    <span>
+                                        Created
+                                    </span>
 
-            {payment.status === "COMPLETED" && (
+                                    <strong>
+                                        {createdDate}
+                                    </strong>
 
-                <p>
-                    Payment completed successfully.
-                </p>
+                                </div>
 
-            )}
 
+                                <div className="ff-information-item">
 
-            {payment.status === "FAILED" && (
+                                    <span>
+                                        Last Updated
+                                    </span>
 
-                <p>
-                    Payment failed.
-                </p>
+                                    <strong>
+                                        {updatedDate}
+                                    </strong>
 
-            )}
+                                </div>
 
 
-            {payment.status !== "COMPLETED" && (
+                                {payment.razorpay_order_id && (
 
-                <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                >
+                                    <div className="ff-information-item">
 
-                    {deleting
-                        ? "Deleting..."
-                        : "Delete Payment"
-                    }
+                                        <span>
+                                            Razorpay Order ID
+                                        </span>
 
-                </button>
+                                        <strong className="ff-mono-value">
+                                            {payment.razorpay_order_id}
+                                        </strong>
 
-            )}
+                                    </div>
 
-        </div>
+                                )}
+
+
+                                {payment.razorpay_payment_id && (
+
+                                    <div className="ff-information-item">
+
+                                        <span>
+                                            Razorpay Payment ID
+                                        </span>
+
+                                        <strong className="ff-mono-value">
+                                            {payment.razorpay_payment_id}
+                                        </strong>
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* DESCRIPTION */}
+
+                        <div className="ff-detail-card">
+
+                            <div className="ff-section-heading">
+
+                                <div className="ff-section-icon">
+                                    ≡
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Description
+                                    </h3>
+
+                                    <p>
+                                        Payment purpose provided
+                                        during creation.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="ff-description-box">
+
+                                {payment.description}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* =================================
+                        RIGHT COLUMN
+                    ================================= */}
+
+                    <aside className="ff-details-sidebar">
+
+
+                        {/* PAYMENT ACTION */}
+
+                        <div className="ff-action-card">
+
+                            <div className="ff-action-icon">
+                                {status === "PENDING"
+                                    ? "→"
+                                    : status === "COMPLETED"
+                                        ? "✓"
+                                        : "!"}
+                            </div>
+
+
+                            <div className="ff-action-content">
+
+                                <span className="ff-action-label">
+                                    PAYMENT ACTION
+                                </span>
+
+                                {status === "PENDING" && (
+
+                                    <>
+
+                                        <h3>
+                                            Complete payment
+                                        </h3>
+
+                                        <p>
+                                            Your payment is ready.
+                                            Continue securely through
+                                            Razorpay to complete the
+                                            transaction.
+                                        </p>
+
+                                        <div className="ff-checkout-wrapper">
+
+                                            <RazorpayCheckout
+
+                                                paymentId={
+                                                    payment.payment_id
+                                                }
+
+                                                customerName={
+                                                    payment.customer_name
+                                                }
+
+                                                customerEmail={
+                                                    payment.email
+                                                }
+
+                                            />
+
+                                        </div>
+
+                                    </>
+
+                                )}
+
+
+                                {status === "PROCESSING" && (
+
+                                    <>
+
+                                        <h3>
+                                            Payment processing
+                                        </h3>
+
+                                        <p>
+                                            Your payment is currently
+                                            being processed. Please wait
+                                            for confirmation.
+                                        </p>
+
+                                    </>
+
+                                )}
+
+
+                                {status === "COMPLETED" && (
+
+                                    <>
+
+                                        <h3>
+                                            Payment completed
+                                        </h3>
+
+                                        <p>
+                                            This transaction has been
+                                            successfully completed.
+                                        </p>
+
+                                    </>
+
+                                )}
+
+
+                                {status === "FAILED" && (
+
+                                    <>
+
+                                        <h3>
+                                            Payment failed
+                                        </h3>
+
+                                        <p>
+                                            This payment could not be
+                                            completed.
+                                        </p>
+
+                                    </>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* STATUS CARD */}
+
+                        <div className="ff-side-card">
+
+                            <div className="ff-side-card-heading">
+
+                                <div className="ff-mini-icon">
+                                    ✓
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        Transaction status
+                                    </h3>
+
+                                    <span>
+                                        Current payment state
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    `ff-large-status ff-status-${statusClass}`
+                                }
+                            >
+
+                                <span className="ff-status-indicator" />
+
+                                <div>
+
+                                    <strong>
+                                        {status}
+                                    </strong>
+
+                                    <span>
+                                        {status === "COMPLETED"
+                                            ? "Successfully processed"
+                                            : status === "PENDING"
+                                                ? "Awaiting payment"
+                                                : status === "PROCESSING"
+                                                    ? "Processing transaction"
+                                                    : "Transaction unsuccessful"}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* SECURITY */}
+
+                        <div className="ff-security-panel">
+
+                            <div className="ff-security-shield">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Secure transaction
+                                </strong>
+
+                                <p>
+                                    FinFlow protects your payment
+                                    information using secure
+                                    processing.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* DELETE */}
+
+                        {status !== "COMPLETED" && (
+
+                            <button
+                                type="button"
+                                className="ff-delete-button"
+                                onClick={handleDelete}
+                                disabled={deleting}
+                            >
+
+                                <span>
+                                    {deleting
+                                        ? "Deleting..."
+                                        : "Delete Payment"}
+                                </span>
+
+                                {!deleting && (
+                                    <span>
+                                        ×
+                                    </span>
+                                )}
+
+                            </button>
+
+                        )}
+
+                    </aside>
+
+                </section>
+
+            </main>
+
+        </AppShell>
+
     );
+
 }
 
 

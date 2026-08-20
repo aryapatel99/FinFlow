@@ -13,9 +13,21 @@ import {
     AuthContext,
 } from "./context/AuthContext";
 
+import AppShell from "./components/AppShell";
+
+
+// ==========================================
+// Public Pages
+// ==========================================
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+
+
+// ==========================================
+// Customer Pages
+// ==========================================
+
 import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payments";
 import CreatePayment from "./pages/CreatePayment";
@@ -25,9 +37,18 @@ import PaymentResult from "./pages/PaymentResult";
 import Profile from "./pages/Profile";
 import ChangePassword from "./pages/ChangePassword";
 
+
+// ==========================================
+// Admin Pages
+// ==========================================
+
 import AdminUsers from "./pages/AdminUsers";
 import AdminPayments from "./pages/AdminPayments";
 
+
+// ==========================================
+// Protected Route
+// ==========================================
 
 function ProtectedRoute({
     children,
@@ -39,16 +60,42 @@ function ProtectedRoute({
     } = useContext(AuthContext);
 
 
+    // --------------------------------------
+    // Authentication still loading
+    // --------------------------------------
+
     if (loading) {
 
         return (
-            <div>
-                Loading...
+            <div className="app-loading-screen">
+
+                <div className="app-loading-card">
+
+                    <div className="app-loading-logo">
+                        F
+                    </div>
+
+                    <div className="app-loading-spinner" />
+
+                    <h2>
+                        FinFlow
+                    </h2>
+
+                    <p>
+                        Loading your workspace...
+                    </p>
+
+                </div>
+
             </div>
         );
 
     }
 
+
+    // --------------------------------------
+    // Not authenticated
+    // --------------------------------------
 
     if (!user) {
 
@@ -62,9 +109,22 @@ function ProtectedRoute({
     }
 
 
-    return children;
+    // --------------------------------------
+    // Authenticated
+    // --------------------------------------
+
+    return (
+        <AppShell>
+            {children}
+        </AppShell>
+    );
+
 }
 
+
+// ==========================================
+// Admin Route
+// ==========================================
 
 function AdminRoute({
     children,
@@ -76,16 +136,42 @@ function AdminRoute({
     } = useContext(AuthContext);
 
 
+    // --------------------------------------
+    // Authentication still loading
+    // --------------------------------------
+
     if (loading) {
 
         return (
-            <div>
-                Loading...
+            <div className="app-loading-screen">
+
+                <div className="app-loading-card">
+
+                    <div className="app-loading-logo">
+                        F
+                    </div>
+
+                    <div className="app-loading-spinner" />
+
+                    <h2>
+                        FinFlow
+                    </h2>
+
+                    <p>
+                        Loading administration...
+                    </p>
+
+                </div>
+
             </div>
         );
 
     }
 
+
+    // --------------------------------------
+    // Not authenticated
+    // --------------------------------------
 
     if (!user) {
 
@@ -98,6 +184,10 @@ function AdminRoute({
 
     }
 
+
+    // --------------------------------------
+    // Not an admin
+    // --------------------------------------
 
     if (user.role !== "admin") {
 
@@ -111,9 +201,22 @@ function AdminRoute({
     }
 
 
-    return children;
+    // --------------------------------------
+    // Admin authenticated
+    // --------------------------------------
+
+    return (
+        <AppShell>
+            {children}
+        </AppShell>
+    );
+
 }
 
+
+// ==========================================
+// Application
+// ==========================================
 
 function App() {
 
@@ -122,115 +225,149 @@ function App() {
 
             <Routes>
 
-                {/* ==========================
-                    Public
-                ========================== */}
+
+                {/* ==================================
+                    PUBLIC
+                ================================== */}
 
                 <Route
                     path="/login"
-                    element={<Login />}
+                    element={
+                        <Login />
+                    }
                 />
 
                 <Route
                     path="/register"
-                    element={<Register />}
+                    element={
+                        <Register />
+                    }
                 />
 
 
-                {/* ==========================
-                    Customer / Authenticated
-                ========================== */}
+                {/* ==================================
+                    CUSTOMER / AUTHENTICATED
+                ================================== */}
 
                 <Route
                     path="/dashboard"
                     element={
                         <ProtectedRoute>
+
                             <Dashboard />
+
                         </ProtectedRoute>
                     }
                 />
+
 
                 <Route
                     path="/payments"
                     element={
                         <ProtectedRoute>
+
                             <Payments />
+
                         </ProtectedRoute>
                     }
                 />
+
 
                 <Route
                     path="/payments/create"
                     element={
                         <ProtectedRoute>
+
                             <CreatePayment />
+
                         </ProtectedRoute>
                     }
                 />
+
 
                 <Route
                     path="/payments/:paymentId"
                     element={
                         <ProtectedRoute>
+
                             <PaymentDetails />
+
                         </ProtectedRoute>
                     }
                 />
+
 
                 <Route
                     path="/payments/:paymentId/result"
                     element={
                         <ProtectedRoute>
+
                             <PaymentResult />
+
                         </ProtectedRoute>
                     }
                 />
+
+
+                {/* ==================================
+                    ACCOUNT
+                ================================== */}
 
                 <Route
                     path="/profile"
                     element={
                         <ProtectedRoute>
+
                             <Profile />
+
                         </ProtectedRoute>
                     }
                 />
+
 
                 <Route
                     path="/change-password"
                     element={
                         <ProtectedRoute>
+
                             <ChangePassword />
+
                         </ProtectedRoute>
                     }
                 />
 
 
-                {/* ==========================
-                    Admin
-                ========================== */}
+                {/* ==================================
+                    ADMIN
+                ================================== */}
 
                 <Route
                     path="/admin/users"
                     element={
                         <AdminRoute>
+
                             <AdminUsers />
+
                         </AdminRoute>
                     }
                 />
+
 
                 <Route
                     path="/admin/payments"
                     element={
                         <AdminRoute>
+
                             <AdminPayments />
+
                         </AdminRoute>
                     }
                 />
 
 
-                {/* ==========================
-                    Default
-                ========================== */}
+                {/* ==================================
+                    DEFAULT
+                ================================== */}
 
                 <Route
                     path="/"
@@ -241,6 +378,11 @@ function App() {
                         />
                     }
                 />
+
+
+                {/* ==================================
+                    UNKNOWN ROUTES
+                ================================== */}
 
                 <Route
                     path="*"
@@ -256,6 +398,7 @@ function App() {
 
         </BrowserRouter>
     );
+
 }
 
 

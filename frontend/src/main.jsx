@@ -2,14 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App";
-import "./index.css";
 
-import { AuthProvider } from "./context/AuthContext";
+import "./index.css";
+import "./styles/premium-pages.css";
+
+import {
+    AuthProvider,
+} from "./context/AuthContext";
 
 
 ReactDOM.createRoot(
     document.getElementById("root")
 ).render(
+
     <React.StrictMode>
 
         <AuthProvider>
@@ -19,4 +24,5 @@ ReactDOM.createRoot(
         </AuthProvider>
 
     </React.StrictMode>
+
 );

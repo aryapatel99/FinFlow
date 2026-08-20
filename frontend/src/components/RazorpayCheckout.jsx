@@ -28,19 +28,19 @@ function RazorpayCheckout({
 
     const [
         loading,
-        setLoading
+        setLoading,
     ] = useState(false);
 
 
     const [
         error,
-        setError
+        setError,
     ] = useState("");
 
 
     const [
         scriptLoaded,
-        setScriptLoaded
+        setScriptLoaded,
     ] = useState(false);
 
 
@@ -50,9 +50,7 @@ function RazorpayCheckout({
 
     useEffect(() => {
 
-        if (
-            window.Razorpay
-        ) {
+        if (window.Razorpay) {
 
             setScriptLoaded(true);
 
@@ -69,25 +67,43 @@ function RazorpayCheckout({
 
         if (existingScript) {
 
+            const handleLoad = () => {
+                setScriptLoaded(true);
+            };
+
+
+            const handleError = () => {
+                setError(
+                    "Unable to load Razorpay Checkout."
+                );
+            };
+
+
             existingScript.addEventListener(
                 "load",
-                () => {
-                    setScriptLoaded(true);
-                }
+                handleLoad
             );
 
 
             existingScript.addEventListener(
                 "error",
-                () => {
-                    setError(
-                        "Unable to load Razorpay Checkout."
-                    );
-                }
+                handleError
             );
 
 
-            return;
+            return () => {
+
+                existingScript.removeEventListener(
+                    "load",
+                    handleLoad
+                );
+
+                existingScript.removeEventListener(
+                    "error",
+                    handleError
+                );
+
+            };
 
         }
 
@@ -185,9 +201,9 @@ function RazorpayCheckout({
 
             try {
 
-                // ---------------------------------
-                // Ask backend to create/reuse order
-                // ---------------------------------
+                // =================================
+                // Create / reuse Razorpay order
+                // =================================
 
                 const order =
                     await createCheckout(
@@ -195,9 +211,9 @@ function RazorpayCheckout({
                     );
 
 
-                // ---------------------------------
-                // Razorpay Checkout configuration
-                // ---------------------------------
+                // =================================
+                // Razorpay configuration
+                // =================================
 
                 const options = {
 
@@ -243,9 +259,9 @@ function RazorpayCheckout({
                     },
 
 
-                    // ---------------------------------
-                    // Razorpay Success
-                    // ---------------------------------
+                    // =================================
+                    // Successful Razorpay payment
+                    // =================================
 
                     handler:
                         async function (
@@ -257,10 +273,19 @@ function RazorpayCheckout({
                                 setLoading(true);
 
 
-                                await verifyPayment({
+                                /*
+                                 * IMPORTANT:
+                                 *
+                                 * Backend expects ONLY:
+                                 *
+                                 * razorpay_order_id
+                                 * razorpay_payment_id
+                                 * razorpay_signature
+                                 *
+                                 * Do NOT send payment_id here.
+                                 */
 
-                                    payment_id:
-                                        paymentId,
+                                await verifyPayment({
 
                                     razorpay_order_id:
                                         response.razorpay_order_id,
@@ -295,16 +320,19 @@ function RazorpayCheckout({
                                 );
 
 
-                                setError(
-
+                                const message =
                                     error.response?.data?.detail ||
+                                    "Payment verification failed.";
 
-                                    "Payment verification failed."
 
+                                setError(
+                                    message
                                 );
 
 
-                                setLoading(false);
+                                setLoading(
+                                    false
+                                );
 
 
                                 navigate(
@@ -322,9 +350,9 @@ function RazorpayCheckout({
                         },
 
 
-                    // ---------------------------------
-                    // Razorpay Modal Dismissed
-                    // ---------------------------------
+                    // =================================
+                    // Razorpay modal dismissed
+                    // =================================
 
                     modal: {
 
@@ -348,9 +376,9 @@ function RazorpayCheckout({
                     );
 
 
-                // ---------------------------------
-                // Razorpay Payment Failed
-                // ---------------------------------
+                // =================================
+                // Razorpay payment failed
+                // =================================
 
                 razorpay.on(
 
@@ -392,13 +420,14 @@ function RazorpayCheckout({
                 setError(
 
                     error.response?.data?.detail ||
-
                     "Unable to start Razorpay checkout."
 
                 );
 
 
-                setLoading(false);
+                setLoading(
+                    false
+                );
 
             }
 
@@ -407,13 +436,15 @@ function RazorpayCheckout({
 
     return (
 
-        <div>
+        <div className="space-y-3">
 
             {error && (
 
-                <p>
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+
                     {error}
-                </p>
+
+                </div>
 
             )}
 
@@ -430,6 +461,8 @@ function RazorpayCheckout({
                     loading ||
                     !scriptLoaded
                 }
+
+                className="w-full rounded-xl bg-slate-900 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
 
             >
 
