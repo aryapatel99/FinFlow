@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -43,16 +43,16 @@ class Settings(BaseSettings):
 
     razorpay_key_secret: str
 
+    razorpay_webhook_secret: str
+
 
     # ==========================
-    # Environment Configuration
+    # Configuration
     # ==========================
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    class Config:
+        env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

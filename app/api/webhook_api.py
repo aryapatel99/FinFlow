@@ -1,7 +1,11 @@
+import hashlib
+import hmac
+
 from fastapi import APIRouter, Request, HTTPException, status
 
 from app.services.payment_service import PaymentService
 from app.services.razorpay_service import RazorpayService
+from app.config.settings import settings
 from app.utils.logger import logger
 
 
@@ -16,6 +20,27 @@ razorpay_service = RazorpayService()
 
 
 # =====================================
+# Razorpay Webhook Signature Verification
+# =====================================
+
+def verify_webhook_signature(
+    payload: bytes,
+    signature: str,
+) -> bool:
+
+    expected_signature = hmac.new(
+        settings.razorpay_webhook_secret.encode("utf-8"),
+        payload,
+        hashlib.sha256,
+    ).hexdigest()
+
+    return hmac.compare_digest(
+        expected_signature,
+        signature,
+    )
+
+
+# =====================================
 # Razorpay Webhook
 # =====================================
 
@@ -23,18 +48,77 @@ razorpay_service = RazorpayService()
 async def razorpay_webhook(
     request: Request,
 ):
-    """
-    Receive payment events directly from Razorpay.
 
-    Supported events:
-    - payment.captured
-    - payment.failed
-    """
+    # =====================================
+    # Read RAW request body
+    # =====================================
 
     try:
+
+        body = await request.body()
+
+    except Exception:
+
+        logger.error(
+            "Failed to read Razorpay webhook body."
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid webhook payload.",
+        )
+
+
+    # =====================================
+    # Read Razorpay Signature
+    # =====================================
+
+    signature = request.headers.get(
+        "X-Razorpay-Signature"
+    )
+
+
+    if not signature:
+
+        logger.warning(
+            "Razorpay webhook signature missing."
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Webhook signature missing.",
+        )
+
+
+    # =====================================
+    # Verify Signature
+    # =====================================
+
+    if not verify_webhook_signature(
+        body,
+        signature,
+    ):
+
+        logger.warning(
+            "Invalid Razorpay webhook signature."
+        )
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid webhook signature.",
+        )
+
+
+    # =====================================
+    # Parse JSON
+    # =====================================
+
+    try:
+
         payload = await request.json()
 
     except Exception:
+
         logger.error(
             "Failed to parse Razorpay webhook JSON."
         )
@@ -49,7 +133,7 @@ async def razorpay_webhook(
 
 
     logger.info(
-        f"Razorpay webhook received: {event}"
+        f"Verified Razorpay webhook received: {event}"
     )
 
 
