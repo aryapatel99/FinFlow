@@ -40,21 +40,36 @@ class AdminRepository:
 
         total_users = len(users)
 
+        total_admins = sum(
+            1
+            for user in users
+            if user.get("role") == "admin"
+        )
+
+        total_customers = sum(
+            1
+            for user in users
+            if user.get("role") == "customer"
+        )
+
         total_payments = len(payments)
+
+        pending_payments = sum(
+            1
+            for payment in payments
+            if payment.get("status") == "PENDING"
+        )
+
+        processing_payments = sum(
+            1
+            for payment in payments
+            if payment.get("status") == "PROCESSING"
+        )
 
         completed_payments = sum(
             1
             for payment in payments
             if payment.get("status") == "COMPLETED"
-        )
-
-        pending_payments = sum(
-            1
-            for payment in payments
-            if payment.get("status") in [
-                "PENDING",
-                "PROCESSING",
-            ]
         )
 
         failed_payments = sum(
@@ -63,7 +78,7 @@ class AdminRepository:
             if payment.get("status") == "FAILED"
         )
 
-        total_amount = sum(
+        total_revenue = sum(
             float(
                 payment.get(
                     "amount",
@@ -76,11 +91,14 @@ class AdminRepository:
 
         return {
             "total_users": total_users,
+            "total_admins": total_admins,
+            "total_customers": total_customers,
             "total_payments": total_payments,
-            "completed_payments": completed_payments,
             "pending_payments": pending_payments,
+            "processing_payments": processing_payments,
+            "completed_payments": completed_payments,
             "failed_payments": failed_payments,
-            "total_amount": total_amount,
+            "total_revenue": total_revenue,
         }
 
     # ==========================
